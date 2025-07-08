@@ -166,8 +166,9 @@ def runModel(exe, runfile):
     os.chdir(currentdir)
 
 
-def adjustrivpackage_generic(cf, extent, measDict, modeltmpdir, modeldir, tmpdir):
+def adjustrivpackage_generic(cf, extent, measDict, modeltmpdir, modeldir, tmpdir, outres):
     ppref = '***** ' + adjustrivpackage_generic.__name__
+    apply_resis = True
 
     # flag for consistency check/modification
     riv_consistent = bool(cf.get('Model','riv_consistent'))
@@ -177,7 +178,12 @@ def adjustrivpackage_generic(cf, extent, measDict, modeltmpdir, modeldir, tmpdir
     rsList = ['p','s','t','h1','h2']
     # note: rvar and scvar should be matching!
     rvar   = ['cond',     'stage',     'rbot',     'inf']
-    scvar  = ['condDiff', 'stageDiff', 'rbotDiff', 'infDiff']
+    if apply_resis:
+        fvar   = [outres*outres, None, None, None]
+        scvar  = ['resisDiff', 'stageDiff', 'rbotDiff', 'infDiff']
+    else:
+        fvar   = [None, None, None, None]
+        scvar  = ['condDiff', 'stageDiff', 'rbotDiff', 'infDiff']
 
     # number of polygons/areas
     npoly = len(measDict)
@@ -233,7 +239,9 @@ def adjustrivpackage_generic(cf, extent, measDict, modeltmpdir, modeldir, tmpdir
                 ivar += 1
                 continue
     
-            rvd = rs + '_' + scvar[ivar]; ivar += 1
+            rvd = rs + '_' + scvar[ivar]
+            fv = fvar[ivar]
+            ivar += 1
             print(f'{ppref}: processing for variable "{rv}/{rvd}"')
 
             f = os.path.join(modeldir,rivDict[rs]['subdir'],rivDict[rs][rv])
@@ -255,6 +263,8 @@ def adjustrivpackage_generic(cf, extent, measDict, modeltmpdir, modeldir, tmpdir
                     rivdatDict[rs][rv]['pointer_ipoly'][ipoly] = createpointer(poly, extent_pointer, cs_pointer)
                     pointer = rivdatDict[rs][rv]['pointer_ipoly'][ipoly]
                     v = float(mDict[ipoly][rvd])
+                    if (fv is not None):
+                        v = fv / v
                     rivdatDict[rs][rv]['dat'] = xr.where(pointer.notnull(), rivdatDict[rs][rv]['dat'] + v, 
                                                          rivdatDict[rs][rv]['dat'])
 
@@ -388,7 +398,7 @@ def setupgwmodelandrun(cf, extent, measDict, outres, scen0):
         print("brl_utils_imod - preparing scenario run")
         print(modeltmpdir, modeldir, tmpdir)
         # Adapt inputfiles based on scenario
-        rfDict = adjustrivpackage_generic(cf, extent, measDict, modeltmpdir, modeldir, tmpdir)
+        rfDict = adjustrivpackage_generic(cf, extent, measDict, modeltmpdir, modeldir, tmpdir, outres)
         # create scen runfile
         print(modeltmpdir, extent, template_run)
         runfile = setupModelRUNscenario_generic(modeltmpdir, extent, template_run, rfDict)
