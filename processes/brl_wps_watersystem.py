@@ -50,6 +50,13 @@ from pywps.app.Common import Metadata
 import os
 import json
 
+from datetime import datetime
+# very basis logging
+fn=r'.\logs\user_activity.log'
+with open(fn, 'a+') as f:
+	f.write(','.join([datetime.now().strftime('%Y-%m-%d %H:%M:%S'),'watersystem tool']))
+	f.write('\n')
+
 # local
 from processes.brl_utils import read_config, read_input, write_output
 from processes.brl_watersystem import mainHandler

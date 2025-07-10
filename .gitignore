@@ -9,6 +9,7 @@ logs/*
 tmp/*
 configuration*.txt
 *configuration*.txt
+*_nt.run
 geopackage/*
 *.ipynb
 

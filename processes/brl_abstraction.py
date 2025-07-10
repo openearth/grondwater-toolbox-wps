@@ -322,18 +322,23 @@ def mainHandler(point_json):
                 cf, lstresults, sld_style=dctresults[output][1][1]
             )
             for ilay in range(len(wmslayers)):
-                l = wmslayers[ilay].split('_')[2].replace('cntrl','').replace('l','')
+                l = wmslayers[ilay].split('_')[3].replace('cntrl','').replace('l','')
                 wmsname = dctresults[output][1][0]
-                if 'cntrl' in wmslayers[ilay]:
-                    wmsname = 'isolijnen'
+                if 'cntrl' in wmslayers[ilay]: wmsname = 'isolijnen'
+                if 'ref' in wmslayers[ilay]: folder = 'referentie'
+                if 'dif' in wmslayers[ilay]: folder = 'verschil'
+                if 'scen' in wmslayers[ilay]: folder = 'scenario'
                 res.append(
-                    {
-                        "name": f"verschil {wmsname} laag {l}",
-                        "layer": "{lay}".format(lay=wmslayers[ilay]),
-                        "url": "{b}".format(b=baseUrl),
-                    }
+                    #{"folder": f"{folder}"[
+                        {
+                            "name": f"{folder} {wmsname} laag {l}",
+                            "layer": "{lay}".format(lay=wmslayers[ilay]),
+                            "url": "{b}".format(b=baseUrl),
+                        }
+                    #]}
                 )            
             dctres[output] = res
+            print(res)
     except Exception as e:
         print("Error during calculation of differences and uploading tif!:", e)
         dctres = None

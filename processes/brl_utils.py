@@ -48,9 +48,8 @@ def tempfile(tempdir, typen, extension):
 def read_config():
     # Default config file (relative path, does not work on production, weird)
     if os.name == "nt":
-        devpath = r"C:\develop\grondwatertools\processes"
+        devpath = r"C:\develop\grondwater-toolbox-wps\processes"
         confpath = os.path.join(devpath, "brl_configuration_local_brl.txt")
-        confpath = r'C:\develop\grondwatertools\processes\brl_configuration_local_brl.txt'
     else:
         confpath = os.path.join(
             os.path.dirname(os.path.realpath(__file__)), "brl_configuration.txt"

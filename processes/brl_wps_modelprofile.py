@@ -42,9 +42,12 @@ from pywps.app.Common import Metadata
 
 # other
 import json
-import geojson
-import os
-import time
+from datetime import datetime
+# very basis logging
+fn=r'.\logs\user_activity.log'
+with open(fn, 'a+') as f:
+	f.write(','.join([datetime.now().strftime('%Y-%m-%d %H:%M:%S'),'modelprofile tool']))
+	f.write('\n')
 
 # local
 from processes.brl_utils import *
@@ -81,11 +84,9 @@ class WpsBRLmodelprofile(Process):
 	## MAIN
 	def _handler(self, request, response):
 		try:
-			# create uniqueid
-			absId = 'modelprofiles_{}'.format(int(1000000*time.time()))
 			# Read input
 			point_jsonstr = request.inputs["geojson_point"][0].data
-			print(point_jsonstr)
+
 			# mainHandler sets up reference groundwatermodel and scenario groundwatermodel
 			# effects are subtracted and loaded into geoserver       		
 			res = mainHandler(point_jsonstr)

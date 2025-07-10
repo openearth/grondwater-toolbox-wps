@@ -45,6 +45,12 @@ from pywps.app.Common import Metadata
 
 # other
 import json
+from datetime import datetime
+# very basis logging
+fn=r'.\logs\user_activity.log'
+with open(fn, 'a+') as f:
+	f.write(','.join([datetime.now().strftime('%Y-%m-%d %H:%M:%S'),'abstraction tool']))
+	f.write('\n')
 
 # local
 from processes.brl_utils import *

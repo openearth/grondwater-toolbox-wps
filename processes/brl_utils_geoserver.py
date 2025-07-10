@@ -45,62 +45,127 @@ import imod
 import logging
 LOGGER= logging.getLogger("PYWPS")
 
+def creategtif(i, uid, imodobj, fdir, mtype, prefix, outres=250):
+    """Function creates geotif in the given path returns complete path setting. In case of mtype bdgflf it converts the data to mm
+
+    Args:
+        i (int)              : layernumber
+        uid (int)            : unique identifier
+        imodobj (xarray obj) : the xarray object build from iMODF IDF files
+        fdir (string)        : output file dir
+        mtype (string)       : indication for type of input file, i.e. head or bdgflf (this should be similar to iMODFLOW setup)
+        prefix (string)      : for now this is a string indicating the scenario type, i.e. ref (reference), scen (scenario) and dif (difference)
+        outres (int)         : defaults to default raster size of model (250 m), but can be reciproke equivalent of 250
+
+    returns:
+        resultgtif (string)  : full pathname and filename of the resulting GeoTIFF            
+    """
+    # assign proper epscode
+    imodobj.attrs["crs"] = "epsg:28992"
+    # this part cuts of 1 cell from the boundaries
+    imodobj.isel(x=slice(1, -1), y=slice(1, -1))
+    print('creategtif', i, uid, fdir, mtype)
+    if mtype == 'bdgflf': 
+        # for bdgflf conversion from m3 to mm following is required
+        imodobj = 1000.0 * imodobj / (outres * outres) # m3 --> mm
+
+    resultgtif = os.path.join(
+        fdir,
+        "".join(["{pf}_{d}_{id}_l{l}.tif".format(pf=prefix,d=mtype, id=uid, l=i)]),
+    )        
+    print('creategtif', resultgtif)
+    imod.rasterio.save(
+        resultgtif, imodobj, driver="GTIFF", pattern="{name}{extension}"
+    )
+    print("abs create output name", i, uid, resultgtif)
+    return resultgtif
+
+
 def handleoutput(nlayers, scenruntmpdir, refruntmpdir, resultpath,outres=250):
     """Creates diffenrence rasters of the several outputfiles
 
     Args:
+        nlayers (inte): number of modellayers
         scenruntmpdir (string): path to output of scenario calculation
         refruntmpdir (string): path to output of reference calculation
         resultpath (string): output path for the gtiffs
-
+        outres (int): defaults to default raster size of model (250 m), but can be reciproke equivalent of 250
     Returns:
-        _type_: _description_
+        dictresults: per mtype (model data type, i.e. head, bdgflf) list of results for heads, fluxes and differences
     """
-
-    dctdirs = {}
-    dctdirs["head"] = ("grondwaterstand", "brl")
-    dctdirs["bdgflf"] = ("flux onderkant", "kwel")
+    # dictionary that stores information on generated tifs (incl. paths) and styles
+    dctmtype = {}
+    dctmtype["head"] = ("grondwaterstand", "brl")
+    dctmtype["bdgflf"] = ("flux onderkant", "kwel")
 
     print("refrtmpdir:", refruntmpdir)
     print("scentmpdir:", scenruntmpdir)
     print("resultpath:", resultpath)
-    # check numbers of watersId
-    anid = str(int(1000000 * time.time()))
+
+    # create Unique ID for this session
+    uid = str(int(1000000 * time.time()))
+ 
     # from the tmpdir --> get head for layer of visualisation
     # create a difference raster based on the extent of the scenario vislayer
     dctresults = {}
 
-    for dir in dctdirs.keys():
-        print(dir)
+    for mtype in dctmtype.keys():
         lstresults = []
         for i in range(1, nlayers + 1):
-            head_ref = imod.idf.open(
-                os.path.join(refruntmpdir, f"{dir}/{dir}_steady-state_l{i}.idf")
-            ).squeeze("time")
-            head_scen = imod.idf.open(
-                os.path.join(scenruntmpdir, f"{dir}/{dir}_steady-state_l{i}.idf")
-            ).squeeze("time")
+            print('handleoutput', mtype, i)
+            if mtype == 'head':
+                # reference situation --- process head 
+                head_ref = imod.idf.open(
+                    os.path.join(refruntmpdir, f"{mtype}/{mtype}_steady-state_l{i}.idf")
+                ).squeeze("time")
+                #).groupby("time",squeeze=False)
 
-            result = head_scen - head_ref
-            if dir == 'bdgflf':
-                result = 1000.0 * result / (outres * outres) # m3 --> mm
-            result.attrs["crs"] = "epsg:28992"
-            # this part cuts of 1 cell from the boundaries
-            result.isel(x=slice(1, -1), y=slice(1, -1))
-            resultgtif = os.path.join(
-                resultpath,
-                "".join(["diff{d}_{id}_l{l}.tif".format(d=dir, l=i, id=anid)]),
-            )
-            print("abs create output name", i, anid, resultgtif)
-            fn = imod.rasterio.save(
-                resultgtif, result, driver="GTIFF", pattern="{name}{extension}"
-            )
-            lstresults.append(resultgtif)
-        dctresults[dir] = (lstresults, dctdirs[dir])
+                print('handleoutput', os.path.join(refruntmpdir, f"{mtype}/{mtype}_steady-state_l{i}.idf"))
+                resultgtif = creategtif(i,uid,head_ref, refruntmpdir, mtype,'ref')
+                lstresults.append(resultgtif)
+
+                # scenario situation --- process head 
+                head_scen = imod.idf.open(
+                    os.path.join(scenruntmpdir, f"{mtype}/{mtype}_steady-state_l{i}.idf")
+                ).squeeze("time")
+                resultgtif = creategtif(i,uid,head_scen, scenruntmpdir,mtype, 'scen')
+                lstresults.append(resultgtif)
+
+                # process the difference between head in scenarion and reference situation
+                result = head_scen - head_ref
+                resultgtif = creategtif(i,uid, result, resultpath, mtype, 'dif')
+                lstresults.append(resultgtif)
+            elif mtype == 'bdgflf':
+                # reference situation --- process bdgflf 
+                flf_ref = imod.idf.open(
+                    os.path.join(refruntmpdir, f"{mtype}/{mtype}_steady-state_l{i}.idf")
+                ).squeeze("time")
+                resultgtif = creategtif(i,uid,flf_ref, refruntmpdir,mtype,'ref',outres)
+                lstresults.append(resultgtif)
+
+                # scenario situation --- process bdgflf
+                flf_scen = imod.idf.open(
+                    os.path.join(scenruntmpdir, f"{mtype}/{mtype}_steady-state_l{i}.idf")
+                ).squeeze("time")
+                resultgtif = creategtif(i,uid,flf_scen, scenruntmpdir,mtype,'scen', outres)
+                lstresults.append(resultgtif)
+
+                # process the difference between bdgflf in scenarion and reference situation
+                result = flf_scen - flf_ref
+                resultgtif = creategtif(i,uid, result, resultpath, mtype,'dif', outres)
+                lstresults.append(resultgtif)
+        dctresults[mtype] = (lstresults, dctmtype[mtype])
     return dctresults
 
-
 def addsld(cf, gtifpath, workspace="temp", sld_style="brl"):
+    """sets given style to layer in specified workspace
+
+    Args:
+        cf (configparser obj)    : configparser object to enable access to geoserver
+        gtifpath (string)        : path and filename of data to be loaded into geoserver
+        workspace (str, optional): Geoserver workspace. Defaults to "temp".
+        sld_style (str, optional): Geoserver style to be associated with the layer. Defaults to "brl".
+    """
     layername = os.path.basename(gtifpath).replace(".tif", "")
     print("gtif layer", layername)
     cat = Catalog(
@@ -121,13 +186,13 @@ def load2geoserver(cf, lstgtif, sld_style="brl", aws="abs"):
     """Load gtif data into geoserver
 
     Args:
-        cf (_type_): configparser object of the contents of a configuration file
-        lstgtif (_type_): a list with gtif paths (incl. filenames)
+        cf (configparser obj)    : configparser object of the contents of a configuration file
+        lstgtif (list)           : a list with gtif paths (incl. filenames)
         sld_style (str, optional): style name (shoul be there in geoserver) Defaults to 'brl'.
-        aws (str, optional): Workspace, if give then will be created, otherwise defaults to 'abs'.
+        aws (str, optional)      : Workspace, if give then will be created, otherwise defaults to 'abs'.
 
     Returns:
-        _type_: wmslayer
+        List                     : of wmslayers
     """
     # Initialize the library
     try:
