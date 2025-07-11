@@ -316,10 +316,10 @@ def mainHandler(point_json):
             res = []
             print("****HERE DEBUG")
             lstresults = dctresults[output][0]
-            #print(lstresults)
-            print('STYLING', dctresults[output][1][1])
+            print(f"****adding data to geoserver for {output}")
             wmslayers = load2geoserver(
-                cf, lstresults, sld_style=dctresults[output][1][1]
+                #cf, lstresults, sld_style=dctresults[output][1][1]
+                cf, lstresults
             )
             for ilay in range(len(wmslayers)):
                 l = wmslayers[ilay].split('_')[3].replace('cntrl','').replace('l','')

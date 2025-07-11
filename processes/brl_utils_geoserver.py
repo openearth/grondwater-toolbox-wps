@@ -34,10 +34,8 @@ import os
 import time
 
 # conda packages
-import rasterio
-import xarray
 from geoserver.catalog import Catalog
-from geo.Geoserver import Geoserver
+from geo.Geoserver import Geoserver, GeoserverException
 
 # third party
 import imod
@@ -60,14 +58,15 @@ def creategtif(i, uid, imodobj, fdir, mtype, prefix, outres=250):
     returns:
         resultgtif (string)  : full pathname and filename of the resulting GeoTIFF            
     """
-    # assign proper epscode
-    imodobj.attrs["crs"] = "epsg:28992"
     # this part cuts of 1 cell from the boundaries
     imodobj.isel(x=slice(1, -1), y=slice(1, -1))
-    print('creategtif', i, uid, fdir, mtype)
+    
     if mtype == 'bdgflf': 
         # for bdgflf conversion from m3 to mm following is required
         imodobj = 1000.0 * imodobj / (outres * outres) # m3 --> mm
+
+    # assign proper epscode
+    imodobj.attrs["crs"] = "epsg:28992"
 
     resultgtif = os.path.join(
         fdir,
@@ -77,7 +76,7 @@ def creategtif(i, uid, imodobj, fdir, mtype, prefix, outres=250):
     imod.rasterio.save(
         resultgtif, imodobj, driver="GTIFF", pattern="{name}{extension}"
     )
-    print("abs create output name", i, uid, resultgtif)
+    logging.info("abs create output name", i, uid, resultgtif)
     return resultgtif
 
 
@@ -98,9 +97,9 @@ def handleoutput(nlayers, scenruntmpdir, refruntmpdir, resultpath,outres=250):
     dctmtype["head"] = ("grondwaterstand", "brl")
     dctmtype["bdgflf"] = ("flux onderkant", "kwel")
 
-    print("refrtmpdir:", refruntmpdir)
-    print("scentmpdir:", scenruntmpdir)
-    print("resultpath:", resultpath)
+    logging.info("refrtmpdir:", refruntmpdir)
+    logging.info("scentmpdir:", scenruntmpdir)
+    logging.info("resultpath:", resultpath)
 
     # create Unique ID for this session
     uid = str(int(1000000 * time.time()))
@@ -167,7 +166,6 @@ def addsld(cf, gtifpath, workspace="temp", sld_style="brl"):
         sld_style (str, optional): Geoserver style to be associated with the layer. Defaults to "brl".
     """
     layername = os.path.basename(gtifpath).replace(".tif", "")
-    print("gtif layer", layername)
     cat = Catalog(
         cf.get("GeoServer", "rest_url"),
         username=cf.get("GeoServer", "user"),
@@ -194,6 +192,18 @@ def load2geoserver(cf, lstgtif, sld_style="brl", aws="abs"):
     Returns:
         List                     : of wmslayers
     """
+
+    dctstyles = {}
+    dctstyles['ref_head']    = ("grondwaterstand referentie",'maaiveld_tov_nap')
+    dctstyles['scen_head']   = ("grondwaterstand scenario",'maaiveld_tov_nap')
+    dctstyles['cntrl']       = ("contourlijnen grondwaterstand",'cntrl_ref_scen')
+    dctstyles['ref_bdgflf']  = ("verticale flux referentie",'kwel_mmd_2')
+    dctstyles['scen_bdgflf'] = ("verticale flux scenario",'kwel_mmd_2')
+    dctstyles['dif_head']    = ("verschil grondwaterstand",'maaiveld_tov_nap')
+    dctstyles['dif_bdgflf']  = ("verschil verticale flux",'kwel_mmd_2')
+    dctstyles['dif_cntrl']   = ("contourlijnen verschilsituati",'cntrl')
+
+
     # Initialize the library
     try:
         geo = Geoserver(
@@ -201,8 +211,10 @@ def load2geoserver(cf, lstgtif, sld_style="brl", aws="abs"):
             username=cf.get("GeoServer", "user"),
             password=cf.get("GeoServer", "pass"),
         )
-    except:
-        print("cannot connect to geoserver")
+    except Exception as e:
+        logging.info("unable to connect to geoserver", e)
+
+    # fetch workspaces and check if workspace aws is already setup in if necessary create it
     geo.get_workspaces()
     try:
         ws = geo.get_workspace(workspace=aws)
@@ -211,13 +223,17 @@ def load2geoserver(cf, lstgtif, sld_style="brl", aws="abs"):
             ws = geo.create_workspace(workspace=aws)
         else:
             print(ws, "already exists")
-    except:
-        print("connection to workspace not set")
+    except GeoserverException as ge:
+        logging('GeoserverException', ge)
+        ws = geo.create_workspace(workspace=aws)
+    except Exception as e:
+        logging.info("other exception",e)
 
     # create emtpy list to harvest the wmslayers
     wmslayers = []
 
     for gtif in lstgtif:
+        print('brl_utils_geoserver ',gtif)
         if aws == "brl":
             # lname = os.path.basename(gtif).replace(gtif.split('_')[-1],'').replace('_steady-state','')[:-1]
             lname = os.path.basename(gtif).replace(".tif", "")
@@ -225,7 +241,9 @@ def load2geoserver(cf, lstgtif, sld_style="brl", aws="abs"):
             lname = (
                 os.path.basename(gtif).replace(".tif", "").replace("_steady-state", "")
             )
-        print(lname, gtif)
+
+        sld_style = dctstyles["_".join(lname.split('_')[:2])]
+
         # For uploading raster data to the geoserver
         try:
             geo.create_coveragestore(layer_name=lname, path=gtif, workspace=aws)
@@ -239,12 +257,12 @@ def load2geoserver(cf, lstgtif, sld_style="brl", aws="abs"):
                 geo.publish_style(layer_name=lname, style_name='cntrln', workspace=aws)
                 wmslay = aws + ":" + lname
                 wmslayers.append(wmslay)
-                print("coverage store created and style assigned ", lname)
+                logging.info("coverage store created and style assigned ", lname)
         except:
-            print("failed to create store for", lname)
+            logging.info("failed to create store for", lname)
 
         print(wmslay)
-    print("de wms layers", wmslayers)
+    #print("de wms layers", wmslayers)
     return wmslayers
 
 # Cleanup temporary layers and stores
