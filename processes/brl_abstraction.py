@@ -44,6 +44,8 @@ from shutil import copyfile
 import string
 import time
 from random import choice, randint
+from collections import defaultdict
+
 
 # conda packages
 import rasterio
@@ -309,37 +311,41 @@ def mainHandler(point_json):
     baseUrl = cf.get("GeoServer", "wms_url")
     nlayers = int(cf.get("Model", "nlayers"))
 
-    dctres = {}
     try:
         dctresults = handleoutput(nlayers, modeltmpdir, reftmpdir, modeltmpdir,outres)
+        res_dict = defaultdict(list)
         for output in dctresults.keys():
             res = []
-            print("****HERE DEBUG")
             lstresults = dctresults[output][0]
-            print(f"****adding data to geoserver for {output}")
             wmslayers = load2geoserver(
-                #cf, lstresults, sld_style=dctresults[output][1][1]
                 cf, lstresults
             )
             for ilay in range(len(wmslayers)):
-                l = wmslayers[ilay].split('_')[3].replace('cntrl','').replace('l','')
+                l = wmslayers[ilay].split('_')[3].replace('cntrl', '').replace('l', '')
                 wmsname = dctresults[output][1][0]
-                if 'cntrl' in wmslayers[ilay]: wmsname = 'isolijnen'
-                if 'ref' in wmslayers[ilay]: folder = 'referentie'
-                if 'dif' in wmslayers[ilay]: folder = 'verschil'
-                if 'scen' in wmslayers[ilay]: folder = 'scenario'
-                res.append(
-                    #{"folder": f"{folder}"[
-                        {
-                            "name": f"{folder} {wmsname} laag {l}",
-                            "layer": "{lay}".format(lay=wmslayers[ilay]),
-                            "url": "{b}".format(b=baseUrl),
-                        }
-                    #]}
-                )            
-            dctres[output] = res
+                if 'cntrl' in wmslayers[ilay]:
+                    wmsname = 'isolijnen'
+            
+                if 'ref' in wmslayers[ilay]:
+                    folder = 'referentie'
+                elif 'dif' in wmslayers[ilay]:
+                    folder = 'verschil'
+                elif 'scen' in wmslayers[ilay]:
+                    folder = 'scenario'
+                else:
+                    folder = 'unknown'  # optional fallback
+            
+                res_dict[folder].append({
+                    "name": f"{folder} {wmsname} laag {l}",
+                    "layer": wmslayers[ilay],
+                    "url": baseUrl,
+                })
+            
+            # Now convert to desired output format:
+            res = [{"folder": folder, "contents": items} for folder, items in res_dict.items()]            
+
             print(res)
     except Exception as e:
         print("Error during calculation of differences and uploading tif!:", e)
         dctres = None
-    return json.dumps(dctres)
+    return json.dumps(res)

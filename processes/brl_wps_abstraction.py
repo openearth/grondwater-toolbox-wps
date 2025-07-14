@@ -91,7 +91,7 @@ class WpsBRLAbstraction(Process):
 			# mainHandler sets up reference groundwatermodel and scenario groundwatermodel
 			# effects are subtracted and loaded into geoserver
 			res = mainHandler(point_jsonstr)
-			response.outputs['output_json'].data = json.dumps(res)
+			response.outputs['output_json'].data = res
 
 		except Exception as e:
 			res = { 'errMsg' : 'ERROR: {}'.format(e)}
