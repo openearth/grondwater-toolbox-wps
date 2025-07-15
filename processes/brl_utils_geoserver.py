@@ -77,7 +77,7 @@ def creategtif(i, uid, imodobj, fdir, mtype, prefix, outres=250):
         resultgtif, imodobj, driver="GTIFF", pattern="{name}{extension}"
     )
     logging.info("abs create output name", i, uid, resultgtif)
-    return resultgtif
+    return os.path.normpath(resultgtif)
 
 
 def handleoutput(nlayers, scenruntmpdir, refruntmpdir, resultpath,outres=250):
@@ -196,10 +196,10 @@ def load2geoserver(cf, lstgtif, sld_style="brl", aws="abs"):
     dctstyles = {}
     dctstyles['ref_head']    = ("grondwaterstand referentie",'maaiveld_tov_nap')
     dctstyles['scen_head']   = ("grondwaterstand scenario",'maaiveld_tov_nap')
-    dctstyles['cntrl']       = ("contourlijnen grondwaterstand",'cntrl_ref_scen')
-    dctstyles['ref_bdgflf']  = ("verticale flux referentie",'kwel_mmd_2')
-    dctstyles['scen_bdgflf'] = ("verticale flux scenario",'kwel_mmd_2')
-    dctstyles['dif_head']    = ("verschil grondwaterstand",'maaiveld_tov_nap')
+    dctstyles['cntrl']       = ("contourlijnen grondwaterstand",'cntrln_ac')
+    dctstyles['ref_bdgflf']  = ("verticale flux referentie",'kwel')
+    dctstyles['scen_bdgflf'] = ("verticale flux scenario",'kwel')
+    dctstyles['dif_head']    = ("verschil grondwaterstand",'brl')
     dctstyles['dif_bdgflf']  = ("verschil verticale flux",'kwel_mmd_2')
     dctstyles['dif_cntrl']   = ("contourlijnen verschilsituati",'cntrl')
 
@@ -233,7 +233,6 @@ def load2geoserver(cf, lstgtif, sld_style="brl", aws="abs"):
     wmslayers = []
 
     for gtif in lstgtif:
-        print('brl_utils_geoserver ',gtif)
         if aws == "brl":
             # lname = os.path.basename(gtif).replace(gtif.split('_')[-1],'').replace('_steady-state','')[:-1]
             lname = os.path.basename(gtif).replace(".tif", "")
@@ -242,24 +241,28 @@ def load2geoserver(cf, lstgtif, sld_style="brl", aws="abs"):
                 os.path.basename(gtif).replace(".tif", "").replace("_steady-state", "")
             )
 
-        sld_style = dctstyles["_".join(lname.split('_')[:2])]
-
+        style_key = "_".join(lname.split('_')[:2])
+        sld_style = dctstyles.get(style_key, [None])[1]
+        logging.info('style for layer', lname,sld_style)
+        print('brl_utils_geoserver - gtifname', os.path.normpath(gtif))
+        print('brl_utils_geoserver - workspace', aws)
+        print('brl_utils_geoserver - style for layer', lname,sld_style)
         # For uploading raster data to the geoserver
         try:
-            geo.create_coveragestore(layer_name=lname, path=gtif, workspace=aws)
+            geo.create_coveragestore(layer_name=lname, path=os.path.normpath(gtif), workspace=aws)
             geo.publish_style(layer_name=lname, style_name=sld_style, workspace=aws)
-            wmslay = aws + ":" + lname
+            wmslay = f"{aws}:{lname}"
             wmslayers.append(wmslay)
-            print("coverage store created and style assigned for", lname)
-            if lname.find('head') != -1:
-                lname = lname+'cntrl'
-                geo.create_coveragestore(layer_name=lname, path=gtif, workspace=aws)
-                geo.publish_style(layer_name=lname, style_name='cntrln', workspace=aws)
-                wmslay = aws + ":" + lname
+            print(f"Coverage store created and style assigned for {lname}")
+            if 'head' in lname:
+                new_lname = f'{lname}cntrl'
+                geo.create_coveragestore(layer_name=new_lname, path=os.path.normpath(gtif), workspace=aws)
+                geo.publish_style(layer_name=new_lname, style_name='cntrln', workspace=aws)
+                wmslay = f"{aws}:{new_lname}"
                 wmslayers.append(wmslay)
-                logging.info("coverage store created and style assigned ", lname)
-        except:
-            logging.info("failed to create store for", lname)
+                logging.info(f"Coverage store created and style assigned for {new_lname}")
+        except Exception as e:
+            logging.info(f"failed to create store for {lname},{str(e)}")
 
         print(wmslay)
     #print("de wms layers", wmslayers)

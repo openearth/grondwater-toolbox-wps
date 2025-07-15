@@ -46,7 +46,6 @@ import time
 from random import choice, randint
 from collections import defaultdict
 
-
 # conda packages
 import rasterio
 import xarray
@@ -343,9 +342,7 @@ def mainHandler(point_json):
             
             # Now convert to desired output format:
             res = [{"folder": folder, "contents": items} for folder, items in res_dict.items()]            
-
-            print(res)
     except Exception as e:
         print("Error during calculation of differences and uploading tif!:", e)
-        dctres = None
+        res = None
     return json.dumps(res)
