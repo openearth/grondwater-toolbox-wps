@@ -39,6 +39,7 @@ import time
 from random import choice, randint
 from unittest import result
 import copy
+from collections import defaultdict
 
 # conda packages
 import rasterio
@@ -455,28 +456,37 @@ def mainHandler(json_string):
     dctres = {}
     try:
         dctresults = handleoutput(nlayers, scenruntmpdir, refruntmpdir, scenruntmpdir)
+        res_dict = defaultdict(list)
         for output in dctresults.keys():
             res = []
             lstresults = dctresults[output][0]
-            print(lstresults)
             wmslayers = load2geoserver(
-                cf, lstresults, sld_style=dctresults[output][1][1]
+                cf, lstresults
             )
-          
             for ilay in range(len(wmslayers)):
-                l = wmslayers[ilay].split('_')[2].replace('cntrl','').replace('l','')
+                l = wmslayers[ilay].split('_')[3].replace('cntrl', '').replace('l', '')
                 wmsname = dctresults[output][1][0]
                 if 'cntrl' in wmslayers[ilay]:
                     wmsname = 'isolijnen'
-                res.append(
-                    {
-                        "name": f"verschil {wmsname} laag {l}",
-                        "layer": "{lay}".format(lay=wmslayers[ilay]),
-                        "url": "{b}".format(b=baseUrl),
-                    }
-                )
-            dctres[output] = res
+            
+                if 'ref' in wmslayers[ilay]:
+                    folder = 'referentie'
+                elif 'dif' in wmslayers[ilay]:
+                    folder = 'verschil'
+                elif 'scen' in wmslayers[ilay]:
+                    folder = 'scenario'
+                else:
+                    folder = 'unknown'  # optional fallback
+            
+                res_dict[folder].append({
+                    "name": f"{folder} {wmsname} laag {l}",
+                    "layer": wmslayers[ilay],
+                    "url": baseUrl,
+                })
+            
+            # Now convert to desired output format:
+            res = [{"folder": folder, "contents": items} for folder, items in res_dict.items()]            
     except Exception as e:
         print("Error during calculation of differences and uploading tif!:", e)
-        dctres = None
-    return json.dumps(dctres)
+        res = None
+    return json.dumps(res)
