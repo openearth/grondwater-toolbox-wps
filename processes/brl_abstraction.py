@@ -255,7 +255,7 @@ def mainHandler(point_json):
 
     # call loguseractivity
     loguseractivity('process abstraction')
-
+    
     # preparatory work
     cf = read_config()
 

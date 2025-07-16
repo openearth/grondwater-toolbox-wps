@@ -139,10 +139,21 @@ def write_output_multiple(cf, layer, defstyle="brl"):
     return json.dumps(res)
 
 def loguseractivity(toolname):
+    """Logs user activity of the specified tool name ans write to a log
+
+    Args:
+        toolname (string): name of the tool used
+    Returns:
+        None
+    """
     # other
     from datetime import datetime
+
     # very basic logging
-    fn=r'.\logs\user_activity.log'
+    log_dir = '/opt/pywps/logs' if os.name != 'nt' else './logs'
+    fn = os.path.join(log_dir, 'user_activity.log')
+    # write (append) to toolname with datetime to the logfile
     with open(fn, 'a+') as f:
-        f.write(','.join([datetime.now().strftime('%Y-%m-%d %H:%M:%S'),{toolname}]))
-        f.write('\n')
+        log_message = f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')},{toolname}\n"
+        f.write(log_message)
+    return
