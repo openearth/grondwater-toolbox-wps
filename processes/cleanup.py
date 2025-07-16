@@ -19,4 +19,7 @@ if __name__ == "__main__":
     for ws in workspaces:
         print(f"\n▶ Cleaning up workspace: {ws}")
         cleanup_workspace_geoserver(rest_url, user, pw, ws)
+        
+    #####
+    #TODO Clean up temporary files of PyWPS processes
 
