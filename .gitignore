@@ -9,7 +9,7 @@ logs/*
 tmp/*
 configuration*.txt
 *configuration*.txt
-*_nt.run
+model/*_nt.run
 geopackage/*
 *.ipynb
 
@@ -34,3 +34,4 @@ logs/pywps.log
 pywps.log
 pywps.log
 *.log
+

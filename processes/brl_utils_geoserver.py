@@ -111,7 +111,7 @@ def handleoutput(nlayers, scenruntmpdir, refruntmpdir, resultpath,outres=250):
     for mtype in dctmtype.keys():
         lstresults = []
         for i in range(1, nlayers + 1):
-            print('handleoutput', mtype, i)
+            #print('handleoutput', mtype, i)
             if mtype == 'head':
                 # reference situation --- process head 
                 head_ref = imod.idf.open(
@@ -119,7 +119,7 @@ def handleoutput(nlayers, scenruntmpdir, refruntmpdir, resultpath,outres=250):
                 ).squeeze("time")
                 #).groupby("time",squeeze=False)
 
-                print('handleoutput', os.path.join(refruntmpdir, f"{mtype}/{mtype}_steady-state_l{i}.idf"))
+                #print('handleoutput', os.path.join(refruntmpdir, f"{mtype}/{mtype}_steady-state_l{i}.idf"))
                 resultgtif = creategtif(i,uid,head_ref, refruntmpdir, mtype,'ref')
                 lstresults.append(resultgtif)
 
@@ -243,10 +243,10 @@ def load2geoserver(cf, lstgtif, sld_style="brl", aws="abs"):
 
         style_key = "_".join(lname.split('_')[:2])
         sld_style = dctstyles.get(style_key, [None])[1]
-        logging.info('style for layer', lname,sld_style)
-        print('brl_utils_geoserver - gtifname', os.path.normpath(gtif))
-        print('brl_utils_geoserver - workspace', aws)
-        print('brl_utils_geoserver - style for layer', lname,sld_style)
+        logging.info('GTIF, set style for layer', os.path.normpath(gtif), lname,sld_style)
+        #print('brl_utils_geoserver - gtifname', os.path.normpath(gtif))
+        #print('brl_utils_geoserver - workspace', aws)
+        p#rint('brl_utils_geoserver - style for layer', lname,sld_style)
         # For uploading raster data to the geoserver
         try:
             geo.create_coveragestore(layer_name=lname, path=os.path.normpath(gtif), workspace=aws)

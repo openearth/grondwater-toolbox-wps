@@ -91,7 +91,7 @@ class WpsBRLWatersystem(Process):
 
 			# in this way it is similar to the abstraction and digit
 			res = mainHandler(model_setup)
-			response.outputs['output_json'].data = json.dumps(res)
+			response.outputs['output_json'].data = res
 		except Exception as e:
 			res = { 'errMsg' : 'ERROR: {}'.format(e) }
 			response.outputs['output_json'].data = json.dumps(res)
