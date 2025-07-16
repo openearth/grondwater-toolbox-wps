@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright notice
 #   --------------------------------------------------------------------
-#   Copyright (C) 2022 Deltares
+#   Copyright (C) 2025 Deltares
 #       Gerrit Hendriksen
 #       gerrit.hendriksen@deltares.nl
 #
@@ -42,12 +42,6 @@ from pywps.app.Common import Metadata
 
 # other
 import json
-from datetime import datetime
-# very basis logging
-fn=r'.\logs\user_activity.log'
-with open(fn, 'a+') as f:
-	f.write(','.join([datetime.now().strftime('%Y-%m-%d %H:%M:%S'),'modelprofile tool']))
-	f.write('\n')
 
 # local
 from processes.brl_utils import *

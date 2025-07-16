@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright notice
 #   --------------------------------------------------------------------
-#   Copyright (C) 2024 Deltares
+#   Copyright (C) 2025 Deltares
 #       Jarno Verkaik/Gerrit Hendriksen
 #       jarno.verkaik@deltares.nl/gerrit.hendriksen@deltares.nl
 #
@@ -53,8 +53,7 @@ import logging
 
 
 # local scripts
-from processes.brl_utils import write_output
-from processes.brl_utils import read_config
+from processes.brl_utils import write_output, read_config, loguseractivity
 from processes.brl_utils_raster import rasterstats_qubic
 from processes.brl_utils_vector import createpointer, createmodelextent_multiple, definetotalextent_from_polylist, transformpolygon
 from processes.brl_utils_geoserver import load2geoserver, handleoutput
@@ -240,6 +239,10 @@ def mainHandler(json_string):
     # example json_string:
     # {"type": "FeatureCollection","name": "test_drainage","crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },"features": [{ "type": "Feature", "properties": { "fid": 1, "id": 1, "layer": 1, "drn_res": 0.1, "drn_bodh": -1.0, "outres": 25, "buffer": 1000}, "geometry": { "type": "Polygon", "coordinates": [ [ [ 6.156277399770034, 52.176580968463142 ], [ 6.144994026135112, 52.172730059457152 ], [ 6.152601459519871, 52.165249248498547 ], [ 6.165923192478923, 52.169621072903709 ], [ 6.165923192478923, 52.169621072903709 ], [ 6.156277399770034, 52.176580968463142 ] ] ] } },{ "type": "Feature", "properties": { "fid": 2, "id": 2, "layer": 2, "drn_res": 0.01, "drn_bodh": -5.0, "outres": 25, "buffer": 1000}, "geometry": { "type": "Polygon", "coordinates": [ [ [ 6.163015019979431, 52.163635417180721 ], [ 6.155382824357055, 52.158334542860608 ], [ 6.159790787936715, 52.150517307127558 ], [ 6.170599714815764, 52.149613640671049 ], [ 6.17238649730023, 52.163276133533046 ], [ 6.17238649730023, 52.163276133533046 ], [ 6.163015019979431, 52.163635417180721 ] ] ] } }]}
     # Read configuration
+    
+    # call loguseractivity
+    loguseractivity('process drainage')
+
     cf = read_config()
 
     # read the json string

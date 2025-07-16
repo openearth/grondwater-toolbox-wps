@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright notice
 #   --------------------------------------------------------------------
-#   Copyright (C) 2024 Deltares
+#   Copyright (C) 2025 Deltares
 #       Gerrit Hendriksen/Jarno Verkaik
 #       gerrit.hendriksen@deltares.nl/jarno.verkaik@deltares.nl
 #   This library is free software: you can redistribute it and/or modify
@@ -43,12 +43,6 @@ from pywps.app.Common import Metadata
 
 # other
 import json
-from datetime import datetime
-# very basis logging
-fn=r'.\logs\user_activity.log'
-with open(fn, 'a+') as f:
-	f.write(','.join([datetime.now().strftime('%Y-%m-%d %H:%M:%S'),'drainage tool']))
-	f.write('\n')
 
 # local
 # from processes.brl_utils import *

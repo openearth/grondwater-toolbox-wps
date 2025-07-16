@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright notice
 #   --------------------------------------------------------------------
-#   Copyright (C) 2019 Deltares
+#   Copyright (C) 2025 Deltares
 #       Gerrit Hendriksen
 #       Jarno Verkaik
 #       gerrit.hendriksen@deltares.nl
@@ -54,8 +54,7 @@ import xarray
 import imod
 
 # local scripts (abbrieviation used to be from processes.brl_utils import!)
-from processes.brl_utils import write_output
-from processes.brl_utils import read_config
+from processes.brl_utils import write_output, read_config, loguseractivity
 from processes.brl_utils_vector import roundCoords, transformpolygon, createmodelextent
 from processes.brl_utils_geoserver import load2geoserver, handleoutput
 from processes.brl_utils_digit import deepenlake
@@ -231,6 +230,9 @@ def mainHandler(json_string):
     Returns:
         json: json representation of a dictionary with lists of layers per item (i.e. Groundwater heads, fluxes)
     """
+    # call loguseractivity
+    loguseractivity('process digit')
+
     # preparatory work
 
     cf = read_config()

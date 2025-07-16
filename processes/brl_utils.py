@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright notice
 #   --------------------------------------------------------------------
-#   Copyright (C) 2019 Deltares
+#   Copyright (C) 2025 Deltares
 #       Gerrit Hendriksen
 #       gerrit.hendriksen@deltares.nl
 #
@@ -137,3 +137,12 @@ def write_output_multiple(cf, layer, defstyle="brl"):
         )
 
     return json.dumps(res)
+
+def loguseractivity(toolname):
+    # other
+    from datetime import datetime
+    # very basic logging
+    fn=r'.\logs\user_activity.log'
+    with open(fn, 'a+') as f:
+        f.write(','.join([datetime.now().strftime('%Y-%m-%d %H:%M:%S'),{toolname}]))
+        f.write('\n')

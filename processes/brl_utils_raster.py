@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright notice
 #   --------------------------------------------------------------------
-#   Copyright (C) 2024 Deltares
+#   Copyright (C) 2025 Deltares
 #       Gerrit Hendriksen
 #       gerrit.hendriksen@deltares.nl
 #

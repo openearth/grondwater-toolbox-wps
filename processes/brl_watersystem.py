@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright notice
 #   --------------------------------------------------------------------
-#   Copyright (C) 2019 Deltares
+#   Copyright (C) 2025 Deltares
 #       Gerrit Hendriksen/Jarno Verkaik
 #       gerrit.hendriksen@deltares.nl/jarno.verkaik@deltares.nl
 #
@@ -54,8 +54,7 @@ LOGGER= logging.getLogger("PYWPS")
 
 
 # local scripts
-from processes.brl_utils import write_output
-from processes.brl_utils import read_config
+from processes.brl_utils import write_output, read_config, loguseractivity
 from processes.brl_utils_vector import createpointer, createmodelextent_multiple, definetotalextent_from_polylist, transformpolygon
 from processes.brl_utils_geoserver import load2geoserver, handleoutput
 
@@ -412,6 +411,10 @@ def mainHandler(json_string):
     """
     successor of brl_utils_imod, there's no waters id anymore, but geojson incl. measures
     """
+    
+    # call loguseractivity
+    loguseractivity('process watersystems')
+
     # Read configuration
     cf = read_config()
 

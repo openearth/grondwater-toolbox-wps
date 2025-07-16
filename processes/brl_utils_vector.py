@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright notice
 #   --------------------------------------------------------------------
-#   Copyright (C) 2018 Deltares
+#   Copyright (C) 2025 Deltares
 #       Joan Sala
 #       joan.salacalero@deltares.nl
 #

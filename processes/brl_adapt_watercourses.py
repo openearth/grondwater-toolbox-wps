@@ -1,7 +1,7 @@
  # -*- coding: utf-8 -*-
 # Copyright notice
 #   --------------------------------------------------------------------
-#   Copyright (C) 2018 Deltares
+#   Copyright (C) 2025 Deltares
 #       Tess op den Kelder
 #       Gerrit Hendriksen
 #       tess.op.den.kelder@deltares.nl

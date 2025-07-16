@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright notice
 #   --------------------------------------------------------------------
-#   Copyright (C) 2019 Deltares
+#   Copyright (C) 2025 Deltares
 #       Gerrit Hendriksen
 #       Jarno Verkaik
 #       gerrit.hendriksen@deltares.nl
@@ -57,11 +57,9 @@ import logging
 LOGGER= logging.getLogger("PYWPS")
 
 # local scripts (abbrieviation used to be from processes.brl_utils import!)
-from processes.brl_utils import write_output
-from processes.brl_utils import read_config
+from processes.brl_utils import write_output, read_config, loguseractivity
 from processes.brl_utils_vector import roundCoords, transformpointcoords
 from processes.brl_utils_geoserver import load2geoserver, handleoutput
-
 
 def createrandstring():
     allchar = string.ascii_letters
@@ -254,6 +252,10 @@ def mainHandler(point_json):
     Returns:
         _type_: _description_
     """
+
+    # call loguseractivity
+    loguseractivity('process abstraction')
+
     # preparatory work
     cf = read_config()
 

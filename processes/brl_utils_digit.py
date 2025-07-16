@@ -1,7 +1,7 @@
  # -*- coding: utf-8 -*-
 # Copyright notice
 #   --------------------------------------------------------------------
-#   Copyright (C) 2022 Deltares
+#   Copyright (C) 2025 Deltares
 #       Huite Bootsma
 #       Gerrit Hendriksen
 #       Jarno Verkaik

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright notice
 #   --------------------------------------------------------------------
-#   Copyright (C) 2022 Deltares
+#   Copyright (C) 2025 Deltares
 #       Gerrit Hendriksen
 #       gerrit.hendriksen@deltares.nl
 #
@@ -43,16 +43,8 @@ from pywps.inout.inputs import ComplexInput, LiteralInput
 from pywps.inout.outputs import ComplexOutput
 from pywps.app.Common import Metadata
 
-# other
-import json
-from datetime import datetime
-# very basis logging
-fn=r'.\logs\user_activity.log'
-with open(fn, 'a+') as f:
-	f.write(','.join([datetime.now().strftime('%Y-%m-%d %H:%M:%S'),'digit tool']))
-	f.write('\n')
-
 # local
+import json
 # from processes.brl_utils import *
 # from processes.brl_utils_vector import *
 from processes.brl_digit import mainHandler

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright notice
 #   --------------------------------------------------------------------
-#   Copyright (C) 2022 Deltares
+#   Copyright (C) 2025 Deltares
 #       Gerrit Hendriksen
 #       gerrit.hendriksen@deltares.nl
 #
@@ -44,7 +44,7 @@ from random import choice, randint
 import imod
 
 # local scripts (abbrieviation used to be from processes.brl_utils import!)
-from processes.brl_utils import read_config
+from processes.brl_utils import read_config, loguseractivity
 from processes.brl_utils_vector import transformpointcoords
 
 
@@ -58,6 +58,10 @@ def mainHandler(point_json):
     Returns:
         json: json with layer order of LHM model for the specific point
     """
+
+    # call loguseractivity
+    loguseractivity('model profile')
+
     # preparatory work
     cf = read_config()
 
