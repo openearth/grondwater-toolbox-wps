@@ -34,8 +34,9 @@ import os
 import time
 
 # conda packages
-from geoserver.catalog import Catalog
+
 from geo.Geoserver import Geoserver, GeoserverException
+
 
 # third party
 import imod
@@ -156,28 +157,6 @@ def handleoutput(nlayers, scenruntmpdir, refruntmpdir, resultpath,outres=250):
         dctresults[mtype] = (lstresults, dctmtype[mtype])
     return dctresults
 
-def addsld(cf, gtifpath, workspace="temp", sld_style="brl"):
-    """sets given style to layer in specified workspace
-
-    Args:
-        cf (configparser obj)    : configparser object to enable access to geoserver
-        gtifpath (string)        : path and filename of data to be loaded into geoserver
-        workspace (str, optional): Geoserver workspace. Defaults to "temp".
-        sld_style (str, optional): Geoserver style to be associated with the layer. Defaults to "brl".
-    """
-    layername = os.path.basename(gtifpath).replace(".tif", "")
-    cat = Catalog(
-        cf.get("GeoServer", "rest_url"),
-        username=cf.get("GeoServer", "user"),
-        password=cf.get("GeoServer", "pass"),
-    )
-
-    # Associate SLD styling to it
-    layer = cat.get_layer(layername)
-    layer.default_style = cat.get_style(sld_style)
-    cat.save(layer)
-    cat.reload()
-
 
 # function that is based on the latest geoserver rest package geoserver-rest
 def load2geoserver(cf, lstgtif, sld_style="brl", aws="abs"):
@@ -268,36 +247,40 @@ def load2geoserver(cf, lstgtif, sld_style="brl", aws="abs"):
     #print("de wms layers", wmslayers)
     return wmslayers
 
-# Cleanup temporary layers and stores
-def cleanup_temp(cf, workspace="temp"):
-    # Connect and get workspace
-    cat = Catalog(
-        cf.get("GeoServer", "rest_url"),
-        username=cf.get("GeoServer", "user"),
-        password=cf.get("GeoServer", "pass"),
-    )
 
-    # Layers
-    layers = cat.get_layers()
-    for l in layers:
-        if (workspace + ":") in l.name:
-            print("Deleting layer = {}".format(l.name))
-            try:
-                cat.delete(l)
-                print("OK")
-            except:
-                print("ERR")
-    cat.reload()
+def cleanup_workspace_geoserver(rest_url, username, password, workspace):
+    """
+    Deletes all layers and coverage stores in a single workspace using geo.Geoserver.
+    """
+    geo = Geoserver(rest_url, username=username, password=password)
 
-    # Stores
-    stores = cat.get_stores()
-    print("-------------------")
-    for s in stores:
-        if workspace in s.workspace.name:
-            print("Deleting store = {}".format(s.name))
-            try:
-                cat.delete(s)
-                print("OK")
-            except:
-                print("ERR")
-    cat.reload()
+    print(f"Cleaning workspace: {workspace}")
+
+    # Try to get and delete layers
+    try:
+        layers = geo.get_layers(workspace=workspace)["layers"]
+        if not layers:
+            print(f" → No layers returned for workspace '{workspace}' (may be empty or inaccessible).")
+        else:
+            for layer in layers["layer"]:
+                lname = layer["name"]
+                print(f" → Deleting layer: {lname}")
+                geo.delete_layer(layer_name=lname, workspace=workspace)
+    except Exception as e:
+        print(f" ✖ Failed to retrieve or delete layers in workspace '{workspace}': {e}")
+
+    # Try to get and delete coverage stores
+    try:
+        stores = geo.get_coveragestores(workspace=workspace)["coverageStores"]
+        if not stores:
+            print(f" → No coverage stores returned for workspace '{workspace}' (may be empty or inaccessible).")
+        else:
+            for store in stores["coverageStore"]:
+                store_name = store["name"]
+                print(f" → Deleting coverage store: {store_name}")
+                geo.delete_coveragestore(coveragestore_name=store_name, workspace=workspace)
+    except Exception as e:
+        print(f" ✖ Failed to retrieve or delete coverage stores in workspace '{workspace}': {e}")
+
+
+
