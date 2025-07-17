@@ -7,6 +7,7 @@ platforms = ["win-64"]
 version = "0.1.0"
 
 [tasks]
+install = "pip install git+https://github.com/quadratic-be/gsconfig-py3.git"
 
 [dependencies]
 affine = { version = "==2.4.0", build = "pyhd8ed1ab_0" }
@@ -608,4 +609,3 @@ geojson = "*"
 psycopg2-binary = "*"
 geoserver-rest = "*"
 werkzeug = "==2.2"
-gsconfig-py3 = "*"
