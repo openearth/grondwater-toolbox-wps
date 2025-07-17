@@ -225,7 +225,7 @@ def load2geoserver(cf, lstgtif, sld_style="brl", aws="abs"):
         logging.info('GTIF, set style for layer', os.path.normpath(gtif), lname,sld_style)
         #print('brl_utils_geoserver - gtifname', os.path.normpath(gtif))
         #print('brl_utils_geoserver - workspace', aws)
-        p#rint('brl_utils_geoserver - style for layer', lname,sld_style)
+        #print('brl_utils_geoserver - style for layer', lname,sld_style)
         # For uploading raster data to the geoserver
         try:
             geo.create_coveragestore(layer_name=lname, path=os.path.normpath(gtif), workspace=aws)
