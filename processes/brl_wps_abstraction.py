@@ -80,16 +80,16 @@ class WpsBRLAbstraction(Process):
 
 	## MAIN
 	def _handler(self, request, response):
-		try:
-			# Read input
-			point_jsonstr = request.inputs["geojson_point"][0].data
-			# mainHandler sets up reference groundwatermodel and scenario groundwatermodel
-			# effects are subtracted and loaded into geoserver
-			res = mainHandler(point_jsonstr)
-			response.outputs['output_json'].data = res
+		#try:
+		# Read input
+		point_jsonstr = request.inputs["geojson_point"][0].data
+		# mainHandler sets up reference groundwatermodel and scenario groundwatermodel
+		# effects are subtracted and loaded into geoserver
+		res = mainHandler(point_jsonstr)
+		response.outputs['output_json'].data = res
 
-		except Exception as e:
-			res = { 'errMsg' : 'ERROR: {}'.format(e)}
-			response.outputs['output_json'].data = json.dumps(res)
+		#except Exception as e:
+		#	res = { 'errMsg' : 'ERROR: {}'.format(e)}
+		#	response.outputs['output_json'].data = json.dumps(res)
 
 		return response
