@@ -282,19 +282,92 @@ def mainHandler(json_string):
     resultpath = cf.get("GeoServer", "resultpath")
     baseUrl = cf.get("GeoServer", "wms_url")
     nlayers = int(cf.get("Model", "nlayers"))
-    print("imod_mh", resultpath, baseUrl)
+    resstat = None
+
     try:
-        dctresults = handleoutput(nlayers, scenruntmpdir, refruntmpdir, scenruntmpdir)
+        dctresults = handleoutput(nlayers, scenruntmpdir, refruntmpdir, scenruntmpdir, outres)
         res_dict = defaultdict(list)
         for output in dctresults.keys():
             res = []
             lstresults = dctresults[output][0]
+            
+            # in case of differences in heads calculate total waterneed
+            if output == 'head':
+                wstatlayers = []
+                for rlayer in lstresults:
+                    if 'dif_head' in rlayer:
+                        wstatlayers.append(rlayer)
+                resstat = rasterstats_qubic(wstatlayers)
+                print('resstat', resstat)
+
             wmslayers = load2geoserver(
                 cf, lstresults
             )
             for ilay in range(len(wmslayers)):
                 l = wmslayers[ilay].split('_')[3].replace('cntrl', '').replace('l', '')
                 wmsname = dctresults[output][1][0]
+
+                if 'cntrl' in wmslayers[ilay]:
+                    wmsname = 'isolijnen'
+
+                # set subfolder (i.e. head or flux, Grondwaterstand/Verticale stroming )
+                if 'head' in wmslayers[ilay]:
+                    subfolder = 'grondwaterstand'
+                elif 'bdgflf' in wmslayers[ilay]:
+                    subfolder = 'verticale stroming'
+
+                # set folder names
+                if 'ref' in wmslayers[ilay]:
+                    folder = 'referentie'
+                elif 'dif' in wmslayers[ilay]:
+                    folder = 'verschil'
+                elif 'scen' in wmslayers[ilay]:
+                    folder = 'scenario'
+                else:
+                    folder = 'unknown'  # optional fallback
+            
+                #glue all together in dictionary with json notation
+                res_dict[subfolder].append({
+                    "name": f"{folder} {wmsname} laag {l}",
+                    "layer": wmslayers[ilay],
+                    "url": baseUrl,
+                })
+            
+            # Now convert to desired output format:
+            res = [{"folder": folder, "contents": items} for folder, items in res_dict.items()]            
+            if resstat is not None:
+                 res['waterstat'] = resstat
+    except Exception as e:
+        print("Error during calculation of differences and uploading tif!:", e)
+        res = None
+    return json.dumps(res)
+
+
+def deprecated():
+    try:
+        dctresults = handleoutput(nlayers, scenruntmpdir, refruntmpdir, scenruntmpdir)
+        res_dict = defaultdict(list)
+        for output in dctresults.keys():
+            res = []
+            lstresults = dctresults[output][0]
+            # in case of differences in heads calculate total waterneed
+            wstatlayers = []
+            for output in lstresults:
+                if 'dif_head' in output:
+                    wstatlayers.append(output)
+            print('wstatlayers', wstatlayers)
+            resstat = rasterstats_qubic(lstresults)
+
+            # load all layers in geoserver
+            wmslayers = load2geoserver(
+                cf, lstresults
+            )
+
+            # setup json file with all layers in the correct folders and subfolders
+            for ilay in range(len(wmslayers)):
+                l = wmslayers[ilay].split('_')[3].replace('cntrl', '').replace('l', '')
+                wmsname = dctresults[output][1][0]
+
                 if 'cntrl' in wmslayers[ilay]:
                     wmsname = 'isolijnen'
 
@@ -322,7 +395,8 @@ def mainHandler(json_string):
                 })
 
             # Now convert to desired output format:
-            res = [{"folder": folder, "contents": items} for folder, items in res_dict.items()]            
+            res = [{"folder": folder, "contents": items} for folder, items in res_dict.items()]
+            print('resstat 2', resstat)            
             res['waterstat'] = resstat
     except Exception as e:
         print("Error during calculation of differences and uploading tif!:", e)

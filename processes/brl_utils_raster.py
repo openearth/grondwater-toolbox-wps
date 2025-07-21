@@ -68,6 +68,6 @@ def rasterstats_qubic(lstrasters):
 
 
 def test():
-    lstresults = ['c:\\temp\\brl\\qjrkjewcfyexj\\diffhead_1734525030891574_l1.tif', 'c:\\temp\\brl\\qjrkjewcfyexj\\diffhead_1734525030891574_l2.tif', 'c:\\temp\\brl\\qjrkjewcfyexj\\diffhead_1734525030891574_l3.tif', 'c:\\temp\\brl\\qjrkjewcfyexj\\diffhead_1734525030891574_l4.tif', 'c:\\temp\\brl\\qjrkjewcfyexj\\diffhead_1734525030891574_l5.tif', 'c:\\temp\\brl\\qjrkjewcfyexj\\diffhead_1734525030891574_l6.tif', 'c:\\temp\\brl\\qjrkjewcfyexj\\diffhead_1734525030891574_l7.tif']
+    lstresults = ['c:\\temp\\brl\\xqwnggbnrr\\dif_head_1753104673110787_l1.tif', 'c:\\temp\\brl\\xqwnggbnrr\\dif_head_1753104673110787_l2.tif', 'c:\\temp\\brl\\xqwnggbnrr\\dif_head_1753104673110787_l3.tif', 'c:\\temp\\brl\\xqwnggbnrr\\dif_head_1753104673110787_l4.tif', 'c:\\temp\\brl\\xqwnggbnrr\\dif_head_1753104673110787_l5.tif', 'c:\\temp\\brl\\xqwnggbnrr\\dif_head_1753104673110787_l6.tif', 'c:\\temp\\brl\\xqwnggbnrr\\dif_head_1753104673110787_l7.tif']
     if 'diffhead' in lstresults[0]:
         print(rasterstats_qubic(lstresults))
