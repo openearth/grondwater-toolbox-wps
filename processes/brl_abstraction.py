@@ -324,9 +324,17 @@ def mainHandler(point_json):
             for ilay in range(len(wmslayers)):
                 l = wmslayers[ilay].split('_')[3].replace('cntrl', '').replace('l', '')
                 wmsname = dctresults[output][1][0]
+
                 if 'cntrl' in wmslayers[ilay]:
                     wmsname = 'isolijnen'
-            
+
+                # set subfolder (i.e. head or flux, Grondwaterstand/Verticale stroming )
+                if 'head' in wmslayers[ilay]:
+                    subfolder = 'grondwaterstand'
+                elif 'bdgflf' in wmslayers[ilay]:
+                    subfolder = 'verticale stroming'
+
+                # set folder names
                 if 'ref' in wmslayers[ilay]:
                     folder = 'referentie'
                 elif 'dif' in wmslayers[ilay]:
@@ -336,7 +344,8 @@ def mainHandler(point_json):
                 else:
                     folder = 'unknown'  # optional fallback
             
-                res_dict[folder].append({
+                #glue all together in dictionary with json notation
+                res_dict[subfolder].append({
                     "name": f"{folder} {wmsname} laag {l}",
                     "layer": wmslayers[ilay],
                     "url": baseUrl,
