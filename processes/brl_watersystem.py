@@ -452,8 +452,6 @@ def mainHandler(json_string):
     resultpath = cf.get("GeoServer", "resultpath")
     baseUrl = cf.get("GeoServer", "wms_url")
     nlayers = int(cf.get("Model", "nlayers"))
-    print("imod_mh", resultpath, baseUrl)
-    dctres = {}
     try:
         dctresults = handleoutput(nlayers, scenruntmpdir, refruntmpdir, scenruntmpdir)
         res_dict = defaultdict(list)

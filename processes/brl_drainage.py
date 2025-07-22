@@ -335,12 +335,12 @@ def mainHandler(json_string):
             
             # Now convert to desired output format:
             res = [{"folder": folder, "contents": items} for folder, items in res_dict.items()]            
-            if resstat is not None:
-                 res['waterstat'] = resstat
+            # print('resstat', resstat)
+            response = {"layers": res, "waterstat":resstat}
     except Exception as e:
         print("Error during calculation of differences and uploading tif!:", e)
-        res = None
-    return json.dumps(res)
+        response = None
+    return json.dumps(response)
 
 
 def deprecated():

@@ -34,9 +34,7 @@ import os
 import time
 
 # conda packages
-
 from geo.Geoserver import Geoserver, GeoserverException
-
 
 # third party
 import imod
@@ -158,6 +156,33 @@ def handleoutput(nlayers, scenruntmpdir, refruntmpdir, resultpath,outres=250):
     return dctresults
 
 
+def get_or_create_workspace(geo, aws):
+    """Checks if a workspace exists, if not creates it and returns a workspace object
+
+    Args:
+        geo (object): the geoserver 
+        aws (string): workspace name
+
+    Returns:
+        object: geo workspace object
+    """
+    try:
+        ws = geo.get_workspace(workspace=aws)
+        if ws is None:
+            ws = geo.create_workspace(workspace=aws)
+            print(f"Workspace '{aws}' created")
+        else:
+            print(f"Workspace '{aws}' already exists")
+        return ws
+    except GeoserverException as ge:
+        logging.error(f"GeoserverException: {ge}")
+        ws = geo.create_workspace(workspace=aws)
+        logging.info(f"Workspace '{aws}' created")
+        return ws
+    except Exception as e:
+        logging.error(f"An error occurred: {e}")
+        return None
+
 # function that is based on the latest geoserver rest package geoserver-rest
 def load2geoserver(cf, lstgtif, sld_style="brl", aws="abs"):
     """Load gtif data into geoserver
@@ -180,7 +205,7 @@ def load2geoserver(cf, lstgtif, sld_style="brl", aws="abs"):
     dctstyles['scen_bdgflf'] = ("verticale flux scenario",'kwel')
     dctstyles['dif_head']    = ("verschil grondwaterstand",'brl')
     dctstyles['dif_bdgflf']  = ("verschil verticale flux",'kwel_mmd_2')
-    dctstyles['dif_cntrl']   = ("contourlijnen verschilsituati",'cntrl')
+    dctstyles['dif_cntrl']   = ("contourlijnen verschilsituatie",'cntrl')
 
 
     # Initialize the library
@@ -195,18 +220,7 @@ def load2geoserver(cf, lstgtif, sld_style="brl", aws="abs"):
 
     # fetch workspaces and check if workspace aws is already setup in if necessary create it
     geo.get_workspaces()
-    try:
-        ws = geo.get_workspace(workspace=aws)
-        # For creating workspace
-        if ws is None:
-            ws = geo.create_workspace(workspace=aws)
-        else:
-            print(ws, "already exists")
-    except GeoserverException as ge:
-        logging('GeoserverException', ge)
-        ws = geo.create_workspace(workspace=aws)
-    except Exception as e:
-        logging.info("other exception",e)
+    get_or_create_workspace(geo, aws)
 
     # create emtpy list to harvest the wmslayers
     wmslayers = []
@@ -223,9 +237,6 @@ def load2geoserver(cf, lstgtif, sld_style="brl", aws="abs"):
         style_key = "_".join(lname.split('_')[:2])
         sld_style = dctstyles.get(style_key, [None])[1]
         logging.info('GTIF, set style for layer', os.path.normpath(gtif), lname,sld_style)
-        #print('brl_utils_geoserver - gtifname', os.path.normpath(gtif))
-        #print('brl_utils_geoserver - workspace', aws)
-        #print('brl_utils_geoserver - style for layer', lname,sld_style)
         # For uploading raster data to the geoserver
         try:
             geo.create_coveragestore(layer_name=lname, path=os.path.normpath(gtif), workspace=aws)
@@ -234,12 +245,17 @@ def load2geoserver(cf, lstgtif, sld_style="brl", aws="abs"):
             wmslayers.append(wmslay)
             print(f"Coverage store created and style assigned for {lname}")
             if 'head' in lname:
+                if 'dif_head' in lname:
+                    sld_style = dctstyles.get('dif_cntrl', [None])[1]
+                else:
+                    sld_style = dctstyles.get('cntrl', [None])[1]
+                print('layer and style', lname, sld_style)
                 new_lname = f'{lname}cntrl'
                 geo.create_coveragestore(layer_name=new_lname, path=os.path.normpath(gtif), workspace=aws)
-                geo.publish_style(layer_name=new_lname, style_name='cntrln', workspace=aws)
+                geo.publish_style(layer_name=new_lname, style_name=sld_style, workspace=aws)
                 wmslay = f"{aws}:{new_lname}"
                 wmslayers.append(wmslay)
-                logging.info(f"Coverage store created and style assigned for {new_lname}")
+                logging.info(f"Coverage store created and style {sld_style} assigned for {new_lname}")
         except Exception as e:
             logging.info(f"failed to create store for {lname},{str(e)}")
 
