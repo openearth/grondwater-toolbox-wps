@@ -23,7 +23,8 @@ if __name__ == "__main__":
         print(f"Error during GeoServer cleanup: {e}")
            
     
-    tmp_dir = cf.get("wps", "tmp")
-    print(tmp_dir)
-    cleanup_pywps_tmp(tmp_dir)
-
+    try:
+        tmp_dir = cf.get("wps", "tmp")
+        cleanup_pywps_tmp(tmp_dir)
+    except Exception as e:
+        print(f"Error during PyWPS temporary files cleanup: {e}")
