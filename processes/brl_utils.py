@@ -33,7 +33,7 @@ import json
 import sys
 import time
 import configparser
-
+import shutil
 import logging
 LOGGER= logging.getLogger("PYWPS")
 
@@ -57,6 +57,7 @@ def read_config():
     if not os.path.exists(confpath):
         confpath = "/opt/pywps/processes/brl_configuration.txt"
     # Parse and load
+    print('config file path:', confpath)
     cf = configparser.ConfigParser()
     print(confpath)
     try:
@@ -157,3 +158,21 @@ def loguseractivity(toolname):
         log_message = f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')},{toolname}\n"
         f.write(log_message)
     return
+
+def cleanup_pywps_tmp(tmp_dir):
+    if not os.path.exists(tmp_dir):
+        print(f"PyWPS tmp directory not found: {tmp_dir}")
+        return
+
+    print(f"\n▶ Cleaning up PyWPS temporary files in: {tmp_dir}")
+    for entry in os.listdir(tmp_dir):
+        path = os.path.join(tmp_dir, entry)
+        try:
+            if os.path.isfile(path) or os.path.islink(path):
+                os.remove(path)
+                print(f"  Deleted file: {entry}")
+            elif os.path.isdir(path):
+                shutil.rmtree(path)
+                print(f"  Deleted directory: {entry}")
+        except Exception as e:
+            print(f"  Failed to delete {entry}: {e}")

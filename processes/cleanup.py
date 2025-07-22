@@ -1,6 +1,6 @@
 #script to clean up GeoServer workspaces and tmp files of PyWPS processes
 
-from brl_utils import read_config
+from brl_utils import read_config, cleanup_pywps_tmp
 from brl_utils_geoserver import cleanup_workspace_geoserver
 import sys
 
@@ -9,17 +9,21 @@ if __name__ == "__main__":
     if cf is None:
         print("Configuration file not found or could not be read.")
         sys.exit(1)
+    try:
+        rest_url = cf.get("GeoServer", "rest_url")
+        user = cf.get("GeoServer", "user")
+        pw = cf.get("GeoServer", "pass")
 
-    rest_url = cf.get("GeoServer", "rest_url")
-    user = cf.get("GeoServer", "user")
-    pw = cf.get("GeoServer", "pass")
+        workspaces = [ws.strip() for ws in cf.get("GeoServer", "workspaces_to_clean").split(",") if ws.strip()]
 
-    workspaces = [ws.strip() for ws in cf.get("GeoServer", "workspaces_to_clean").split(",") if ws.strip()]
-
-    for ws in workspaces:
-        print(f"\n▶ Cleaning up workspace: {ws}")
-        cleanup_workspace_geoserver(rest_url, user, pw, ws)
-        
-    #####
-    #TODO Clean up temporary files of PyWPS processes
+        for ws in workspaces:
+            print(f"\n▶ Cleaning up workspace: {ws}")
+            cleanup_workspace_geoserver(rest_url, user, pw, ws)
+    except Exception as e:
+        print(f"Error during GeoServer cleanup: {e}")
+           
+    
+    tmp_dir = cf.get("wps", "tmp")
+    print(tmp_dir)
+    cleanup_pywps_tmp(tmp_dir)
 
