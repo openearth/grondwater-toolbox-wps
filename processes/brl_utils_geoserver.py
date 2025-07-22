@@ -252,6 +252,9 @@ def cleanup_workspace_geoserver(rest_url, username, password, workspace):
     """
     Deletes all layers and coverage stores in a single workspace using geo.Geoserver.
     """
+    #The new geoserver-rest package requires the rest_url to not end with /rest
+    if (rest_url.endswith("/rest")):
+        rest_url = rest_url.replace("/rest", "")
     geo = Geoserver(rest_url, username=username, password=password)
 
     print(f"Cleaning workspace: {workspace}")
