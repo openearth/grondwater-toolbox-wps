@@ -277,7 +277,6 @@ def mainHandler(json_string):
     baseUrl = cf.get("GeoServer", "wms_url")
     nlayers = int(cf.get("Model", "nlayers"))
 
-    dctres = {}
     try:
         dctresults = handleoutput(nlayers, modeltmpdir, reftmpdir, modeltmpdir)
         res_dict = defaultdict(list)

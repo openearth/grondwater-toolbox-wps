@@ -47,7 +47,6 @@
               <ogc:Literal>150.00 </ogc:Literal>
               <ogc:Literal>200.00 </ogc:Literal>
               <ogc:Literal>350.00 </ogc:Literal>
-              
             </ogc:Function>
           </ogc:Function>
         </Transformation>
