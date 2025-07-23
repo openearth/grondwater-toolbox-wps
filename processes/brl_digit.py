@@ -93,9 +93,6 @@ def setupModelRUNscenario(modeltmpdir, modelextent, template_run, dirinputs, nwe
     with open(template_run, "r") as myfile:
         data = myfile.read()
 
-    print('before normpath', dirinputs)
-    dirinputs = os.path.normpath(dirinputs)
-    print('after normpath', dirinputs)
     # data = data.format(outputfolder=modeltmpdir,
     data = data.format(
         outputfolder=modeltmpdir,
@@ -237,7 +234,7 @@ def mainHandler(json_string):
 
     cf = read_config()
     areajson = geojson.loads(json_string)
-
+    
     # read the essentials
     polygon = areajson["features"][0]["geometry"]
     aoi = areajson["features"][0]["properties"]["area"]
@@ -252,6 +249,7 @@ def mainHandler(json_string):
     bnds = tpoly.bounds
     # create modelextent based on
     modelextent = createmodelextent(bnds, aoi)
+    print('modelextent',str(modelextent))
 
     # prepare the reference model
     # prepare modeltmpdir for the reference run, make sure you use nhi_refenentie_nt.run
@@ -265,6 +263,7 @@ def mainHandler(json_string):
     # with the paths specified by deepenlake
     modeltmpdir = mkTempDir(cf.get("wps", "tmp"))
     dirinputs = deepenlake(cf, tpoly, depth, modeltmpdir)
+    print('dirinputs',dirinputs)
     try:
         print('setupgwmodelandrun scenario modeltmpdir',modeltmpdir)
         setupgwmodelandrun(cf, modeltmpdir, modelextent, True, dirinputs, ilay)

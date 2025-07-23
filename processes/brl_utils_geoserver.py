@@ -300,6 +300,3 @@ def cleanup_workspace_geoserver(rest_url, username, password, workspace):
                 geo.delete_coveragestore(coveragestore_name=store_name, workspace=workspace)
     except Exception as e:
         print(f" ✖ Failed to retrieve or delete coverage stores in workspace '{workspace}': {e}")
-
-
-
