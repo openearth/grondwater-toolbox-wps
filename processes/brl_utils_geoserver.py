@@ -272,7 +272,7 @@ def cleanup_workspace_geoserver(rest_url, username, password, workspace):
     if (rest_url.endswith("/rest")):
         rest_url = rest_url.replace("/rest", "")
     geo = Geoserver(rest_url, username=username, password=password)
-
+    print(f"geoserver version: {geo.get_version()}")
     print(f"Cleaning workspace: {workspace}")
 
     # Try to get and delete layers
