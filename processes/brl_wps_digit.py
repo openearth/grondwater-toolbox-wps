@@ -30,12 +30,10 @@
 
 """
 describe http://localhost:5000/wps?request=DescribeProcess&service=WPS&identifier=brl_wps_digit&version=1.0.0
-exectute http://localhost:5000/wps?request=Execute&service=WPS&identifier=brl_wps_digit&version=1.0.0&DataInputs=json_inputs={"type": "FeatureCollection","name": "test_digit","crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },"features": [{ "type": "Feature", "properties": { "fid": 1, "area": 1000, "layer": 1, "depth": -10.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 6.162896776408417, 52.172254558612124 ], [ 6.1571531476448, 52.165871708003593 ], [ 6.16878182055842, 52.163091860336294 ], [ 6.171535672342853, 52.17126815383174 ], [ 6.171535672342853, 52.17126815383174 ], [ 6.162896776408417, 52.172254558612124 ] ] ] } }]}
+execute http://localhost:5000/wps?request=Execute&service=WPS&identifier=brl_wps_digit&version=1.0.0&DataInputs=json_inputs={"type": "FeatureCollection","name": "test_digit","crs":{"type":"name","properties":{"name":"urn:ogc:def:crs:OGC:1.3:CRS84"} },"features":[{ "type": "Feature", "properties": { "fid": 1, "area": 1000, "layer": 1, "depth": -10.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 6.162896776408417, 52.172254558612124 ], [ 6.1571531476448, 52.165871708003593 ], [ 6.16878182055842, 52.163091860336294 ], [ 6.171535672342853, 52.17126815383174 ], [ 6.171535672342853, 52.17126815383174 ], [ 6.162896776408417, 52.172254558612124 ] ] ] } }]}
 
 production server https://basisrivierbodemligging.openearth.nl/wps?request=Execute&service=WPS&identifier=brl_wps_digit&version=1.0.0&DataInputs=json_inputs={"type": "FeatureCollection","name": "test_digit","crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },"features": [{ "type": "Feature", "properties": { "fid": 1, "area": 1000, "layer": 1, "depth": -10.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 6.162896776408417, 52.172254558612124 ], [ 6.1571531476448, 52.165871708003593 ], [ 6.16878182055842, 52.163091860336294 ], [ 6.171535672342853, 52.17126815383174 ], [ 6.171535672342853, 52.17126815383174 ], [ 6.162896776408417, 52.172254558612124 ] ] ] } }]}
-test server https://openearth-basis-rivierbodem-ligging-test.avi.directory.intra/wps?request=Execute&service=WPS&identifier=brl_wps_digit&version=1.0.0&DataInputs=json_inputs={"type": "FeatureCollection","name": "test_digit","crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },"features": [{ "type": "Feature", "properties": { "fid": 1, "area": 1000, "layer": 1, "depth": -10.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 6.162896776408417, 52.172254558612124 ], [ 6.1571531476448, 52.165871708003593 ], [ 6.16878182055842, 52.163091860336294 ], [ 6.171535672342853, 52.17126815383174 ], [ 6.171535672342853, 52.17126815383174 ], [ 6.162896776408417, 52.172254558612124 ] ] ] } }]}
-
-{geojson_area={"id":"88c50716c0288377dcec68e5e0f010c4","type":"Feature","properties":{"layer": 3, "area": 1000, "depth" : 2},"geometry":{"coordinates":[[[6.1289, 52.2557],[6.1561, 52.2407],[6.1634, 52.2511],[6.1368, 52.2650],[6.1289, 52.2557],[6.1289, 52.2557]]],"type":"Polygon"}}
+test server https://openearth-basis-rivierbodem-ligging-test.avi.directory.intra/wps?request=Execute&service=WPS&identifier=brl_wps_digit&version=1.0.0&DataInputs=json_inputs={"type": "FeatureCollection","name": "test_digit","crs":{"type":"name","properties":{"name":"urn:ogc:def:crs:OGC:1.3:CRS84"} },"features":[{ "type": "Feature", "properties": { "fid": 1, "area": 1000, "layer": 1, "depth": -10.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 6.162896776408417, 52.172254558612124 ], [ 6.1571531476448, 52.165871708003593 ], [ 6.16878182055842, 52.163091860336294 ], [ 6.171535672342853, 52.17126815383174 ], [ 6.171535672342853, 52.17126815383174 ], [ 6.162896776408417, 52.172254558612124 ] ] ] } }]}
 """
 
 # PyWPS
@@ -90,7 +88,10 @@ class WpsBRLDigit(Process):
     def _handler(self, request, response):
         try:
             # Read input
+
+            print('brl_wps_digit',request.inputs["json_inputs"][0].data)
             json_input = request.inputs["json_inputs"][0].data
+
             # mainHandler sets up reference groundwatermodel and scenario groundwatermodel
             # effects are subtracted and loaded into geoserver
             res = mainHandler(json_input)

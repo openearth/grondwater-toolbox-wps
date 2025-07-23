@@ -35,3 +35,4 @@ pywps.log
 pywps.log
 *.log
 
+processes/test_clean.py

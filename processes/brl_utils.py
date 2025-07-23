@@ -56,16 +56,14 @@ def read_config():
         )
     if not os.path.exists(confpath):
         confpath = "/opt/pywps/processes/brl_configuration.txt"
+
     # Parse and load
-    print('config file path:', confpath)
     cf = configparser.ConfigParser()
-    print(confpath)
     try:
         cf.read(confpath)
     except:
         print('failed to read config',confpath)
         cf = None
-
     return cf
 
 
