@@ -33,29 +33,18 @@
 # system pacakages
 # from builtins import anextn
 import os
-import json
 import subprocess
-import tempfile
 from shutil import copyfile
 import string
-import time
 from random import choice, randint
 import logging
-from pyexpat.errors import XML_ERROR_DUPLICATE_ATTRIBUTE
-from turtle import shapetransform
 import geojson
-from shapely.geometry import shape, Polygon
 from collections import defaultdict
 # conda packages
-import rasterio
-import xarray
-
-# third party
-import imod
 
 # local scripts (abbrieviation used to be from processes.brl_utils import!)
-from processes.brl_utils import write_output, read_config, loguseractivity
-from processes.brl_utils_vector import roundCoords, transformpolygon, createmodelextent
+from processes.brl_utils import read_config, loguseractivity
+from processes.brl_utils_vector import transformpolygon, createmodelextent
 from processes.brl_utils_geoserver import load2geoserver, handleoutput
 from processes.brl_utils_digit import deepenlake
 
@@ -93,9 +82,9 @@ def setupModelRUNscenario(modeltmpdir, modelextent, template_run, dirinputs, nwe
     with open(template_run, "r") as myfile:
         data = myfile.read()
 
-    print('before normpath', dirinputs)
-    dirinputs = os.path.normpath(dirinputs)
-    print('after normpath', dirinputs)
+    if os.system != 'nt':
+        dirinputs = dirinputs.replace('/','\\')
+
     # data = data.format(outputfolder=modeltmpdir,
     data = data.format(
         outputfolder=modeltmpdir,
