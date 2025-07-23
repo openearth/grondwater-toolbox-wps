@@ -10,16 +10,15 @@ if __name__ == "__main__":
         print("Configuration file not found or could not be read.")
         sys.exit(1)
     try:
-        rest_url = cf.get("GeoServer", "rest_url")
+        wms_url = cf.get("GeoServer", "wms_url")
         user = cf.get("GeoServer", "user")
         pw = cf.get("GeoServer", "pass")
-        print(rest_url,user,pw)
-        rest_url = 'https://basisrivierbodemligging.openearth.nl/geoserver'
+        
         workspaces = [ws.strip() for ws in cf.get("GeoServer", "workspaces_to_clean").split(",") if ws.strip()]
 
         for ws in workspaces:
             print(f"\n▶ Cleaning up workspace: {ws}")
-            cleanup_workspace_geoserver(rest_url, user, pw, ws)
+            cleanup_workspace_geoserver(wms_url, user, pw, ws)
     except Exception as e:
         print(f"Error during GeoServer cleanup: {e}")
            

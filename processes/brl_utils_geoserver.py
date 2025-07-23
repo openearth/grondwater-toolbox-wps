@@ -265,12 +265,19 @@ def load2geoserver(cf, lstgtif, sld_style="brl", aws="abs"):
 
 
 def cleanup_workspace_geoserver(rest_url, username, password, workspace):
+    """Deletes all layers and coverage stores in a single workspace using geo.Geoserver and also removes the data from
+       the tmp folder
+
+    Args:
+        rest_url (string): url that is used to access the geoserver (wms_url in this case)
+        username (string): username to enter geoserver
+        password (string): password to enter geoserver 
+        workspace (string): workspace to remove
     """
-    Deletes all layers and coverage stores in a single workspace using geo.Geoserver.
-    """
-    #The new geoserver-rest package requires the rest_url to not end with /rest
-    if (rest_url.endswith("/rest")):
-        rest_url = rest_url.replace("/rest", "")
+    # The geoserver-rest package requires the url that normally is used to access the geoserver (so not the thech url) 
+    # and without the wms
+    if (rest_url.endswith("/wms")):
+        rest_url = rest_url.replace("/wms", "")
 
     try:
         geo = Geoserver(rest_url, username=username, password=password)
@@ -278,7 +285,7 @@ def cleanup_workspace_geoserver(rest_url, username, password, workspace):
         print(f'Geoserver exception occured: {e}' )
     except Exception as e:
         print(f'some general execpetion while accessing geoserver: {e}')
-        
+
     print(f"geoserver version: {geo.get_version()}")
     print(f"Cleaning workspace: {workspace}")
 
