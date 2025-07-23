@@ -93,10 +93,9 @@ def setupModelRUNscenario(modeltmpdir, modelextent, template_run, dirinputs, nwe
     with open(template_run, "r") as myfile:
         data = myfile.read()
 
-    if os.name != 'nt':
-        dirinputs=dirinputs.replace('/','\\')
-        print('dirinputs',dirinputs)
-
+    print('before normpath', dirinputs)
+    dirinputs = os.path.normpath(dirinputs)
+    print('after normpath', dirinputs)
     # data = data.format(outputfolder=modeltmpdir,
     data = data.format(
         outputfolder=modeltmpdir,
