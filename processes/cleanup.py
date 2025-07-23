@@ -13,7 +13,7 @@ if __name__ == "__main__":
         rest_url = cf.get("GeoServer", "rest_url")
         user = cf.get("GeoServer", "user")
         pw = cf.get("GeoServer", "pass")
-
+        print(rest_url,user,pw)
         workspaces = [ws.strip() for ws in cf.get("GeoServer", "workspaces_to_clean").split(",") if ws.strip()]
 
         for ws in workspaces:

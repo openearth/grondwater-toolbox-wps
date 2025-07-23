@@ -208,7 +208,7 @@ def load2geoserver(cf, lstgtif, sld_style="brl", aws="abs"):
     dctstyles['dif_cntrl']   = ("contourlijnen verschilsituatie",'cntrl')
 
 
-    # Initialize the library
+    # Initialize the geoserver
     try:
         geo = Geoserver(
             cf.get("GeoServer", "rest_url").replace("/rest", ""),
@@ -271,7 +271,14 @@ def cleanup_workspace_geoserver(rest_url, username, password, workspace):
     #The new geoserver-rest package requires the rest_url to not end with /rest
     if (rest_url.endswith("/rest")):
         rest_url = rest_url.replace("/rest", "")
-    geo = Geoserver(rest_url, username=username, password=password)
+
+    try:
+        geo = Geoserver(rest_url, username=username, password=password)
+    except GeoserverException as e:
+        print(f'Geoserver exception occured: {e}' )
+    except Exception as e:
+        print(f'some general execpetion while accessing geoserver: {e}')
+        
     print(f"geoserver version: {geo.get_version()}")
     print(f"Cleaning workspace: {workspace}")
 
