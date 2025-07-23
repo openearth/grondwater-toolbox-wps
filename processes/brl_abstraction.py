@@ -312,48 +312,60 @@ def mainHandler(point_json):
     baseUrl = cf.get("GeoServer", "wms_url")
     nlayers = int(cf.get("Model", "nlayers"))
 
-    try:
-        dctresults = handleoutput(nlayers, modeltmpdir, reftmpdir, modeltmpdir,outres)
-        res_dict = defaultdict(list)
-        for output in dctresults.keys():
-            res = []
-            lstresults = dctresults[output][0]
-            wmslayers = load2geoserver(
-                cf, lstresults
-            )
-            for ilay in range(len(wmslayers)):
-                l = wmslayers[ilay].split('_')[3].replace('cntrl', '').replace('l', '')
-                wmsname = dctresults[output][1][0]
+    # try:
+    dctresults = handleoutput(nlayers, modeltmpdir, reftmpdir, modeltmpdir,outres)
+    res_dict = defaultdict(lambda: defaultdict(list))
+    for output in dctresults.keys():
+        res = []
+        lstresults = dctresults[output][0]
+        wmslayers = load2geoserver(
+            cf, lstresults
+        )
+        for ilay in range(len(wmslayers)):
+            l = wmslayers[ilay].split('_')[3].replace('cntrl', '').replace('l', '')
+            wmsname = dctresults[output][1][0]
 
-                if 'cntrl' in wmslayers[ilay]:
-                    wmsname = 'isolijnen'
+            if 'cntrl' in wmslayers[ilay]:
+                wmsname = 'isolijnen'
 
-                # set subfolder (i.e. head or flux, Grondwaterstand/Verticale stroming )
-                if 'head' in wmslayers[ilay]:
-                    subfolder = 'grondwaterstand'
-                elif 'bdgflf' in wmslayers[ilay]:
-                    subfolder = 'verticale stroming'
+            # set subfolder (i.e. head or flux, Grondwaterstand/Verticale stroming )
+            if 'head' in wmslayers[ilay]:
+                subfolder = 'grondwaterstand'
+            elif 'bdgflf' in wmslayers[ilay]:
+                subfolder = 'verticale stroming'
 
-                # set folder names
-                if 'ref' in wmslayers[ilay]:
-                    folder = 'referentie'
-                elif 'dif' in wmslayers[ilay]:
-                    folder = 'verschil'
-                elif 'scen' in wmslayers[ilay]:
-                    folder = 'scenario'
-                else:
-                    folder = 'unknown'  # optional fallback
+            # set folder names
+            if 'ref' in wmslayers[ilay]:
+                folder = 'referentie'
+            elif 'dif' in wmslayers[ilay]:
+                folder = 'verschil'
+            elif 'scen' in wmslayers[ilay]:
+                folder = 'scenario'
+            else:
+                folder = 'unknown'  # optional fallback
             
-                #glue all together in dictionary with json notation
-                res_dict[subfolder].append({
+            #glue all together in dictionary with json notation
+            res_dict[folder][subfolder].append({
                     "name": f"{folder} {wmsname} laag {l}",
                     "layer": wmslayers[ilay],
                     "url": baseUrl,
                 })
-            
-            # Now convert to desired output format:
-            res = [{"folder": folder, "contents": items} for folder, items in res_dict.items()]            
-    except Exception as e:
-        print("Error during calculation of differences and uploading tif!:", e)
-        res = None
+
+        print(res_dict)
+        # Convert to nested folder structure
+        res = []
+        for folder, subfolders in res_dict.items():
+            contents = []
+            for subfolder, items in subfolders.items():
+                contents.append({
+                    "folder": subfolder,
+                    "contents": items
+                })
+            res.append({
+                "folder": folder,
+                "contents": contents
+            })           
+    # except Exception as e:
+    #     print("Error during calculation of differences and uploading tif!:", e)
+    #     res = None
     return json.dumps(res)

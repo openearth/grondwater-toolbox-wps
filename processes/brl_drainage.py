@@ -286,7 +286,7 @@ def mainHandler(json_string):
 
     try:
         dctresults = handleoutput(nlayers, scenruntmpdir, refruntmpdir, scenruntmpdir, outres)
-        res_dict = defaultdict(list)
+        res_dict = defaultdict(lambda: defaultdict(list))
         for output in dctresults.keys():
             res = []
             lstresults = dctresults[output][0]
@@ -327,16 +327,28 @@ def mainHandler(json_string):
                     folder = 'unknown'  # optional fallback
             
                 #glue all together in dictionary with json notation
-                res_dict[subfolder].append({
+            #glue all together in dictionary with json notation
+            res_dict[folder][subfolder].append({
                     "name": f"{folder} {wmsname} laag {l}",
                     "layer": wmslayers[ilay],
                     "url": baseUrl,
                 })
-            
-            # Now convert to desired output format:
-            res = [{"folder": folder, "contents": items} for folder, items in res_dict.items()]            
-            # print('resstat', resstat)
-            response = {"layers": res, "waterstat":resstat}
+
+        print(res_dict)
+        # Convert to nested folder structure
+        res = []
+        for folder, subfolders in res_dict.items():
+            contents = []
+            for subfolder, items in subfolders.items():
+                contents.append({
+                    "folder": subfolder,
+                    "contents": items
+                })
+            res.append({
+                "folder": folder,
+                "contents": contents
+        })
+        response = {"layers": res, "waterstat":resstat}
     except Exception as e:
         print("Error during calculation of differences and uploading tif!:", e)
         response = None
