@@ -44,6 +44,9 @@ from pywps.inout.inputs import ComplexInput
 from pywps.inout.outputs import ComplexOutput
 from pywps.app.Common import Metadata
 
+import pywps
+pywps.config.server.timeout = 360
+
 # other
 import json
 
