@@ -28,9 +28,11 @@
 # $HeadURL: https://svn.oss.deltares.nl/repos/openearthtools/trunk/python/applications/wps/brl_modelling/processes/brl_utils_lines.py $
 # $Keywords: $
 import os
+import pathlib
 import numpy as np
-template = r'.\data\contourrange.sld'
+cwd = pathlib.Path.cwd()
+template = os.path.join(cwd.parent,'data\contourrange.sld')
 
 with open(template, 'a') as f:
-    for i in np.arange(-10, 100, 0.5):
+    for i in np.arange(-10, 350, 0.5):
         f.write(f'<ogc:Literal>{i}</ogc:Literal>\n')
