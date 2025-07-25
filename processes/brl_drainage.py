@@ -327,14 +327,12 @@ def mainHandler(json_string):
                     folder = 'unknown'  # optional fallback
             
                 #glue all together in dictionary with json notation
-            #glue all together in dictionary with json notation
-            res_dict[folder][subfolder].append({
-                    "name": f"{folder} {wmsname} laag {l}",
-                    "layer": wmslayers[ilay],
-                    "url": baseUrl,
-                })
+                res_dict[folder][subfolder].append({
+                        "name": f"{folder} {wmsname} laag {l}",
+                        "layer": wmslayers[ilay],
+                        "url": baseUrl,
+                    })
 
-        print(res_dict)
         # Convert to nested folder structure
         res = []
         for folder, subfolders in res_dict.items():
@@ -348,6 +346,9 @@ def mainHandler(json_string):
                 "folder": folder,
                 "contents": contents
         })
+        # set the additional output waterstat 
+        # --> watervraag (cumulatief verschil van verschil in waterstanden)
+        # --> amount of water availabl/desired (cumulative sum of differences in waterstages)
         response = {"layers": res, "waterstat":resstat}
     except Exception as e:
         print("Error during calculation of differences and uploading tif!:", e)

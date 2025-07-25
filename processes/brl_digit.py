@@ -267,10 +267,9 @@ def mainHandler(json_string):
     resultpath = cf.get("GeoServer", "resultpath")
     baseUrl = cf.get("GeoServer", "wms_url")
     nlayers = int(cf.get("Model", "nlayers"))
-
+    res_dict = defaultdict(lambda: defaultdict(list))
     try:
         dctresults = handleoutput(nlayers, modeltmpdir, reftmpdir, modeltmpdir)
-        res_dict = defaultdict(lambda: defaultdict(list))
         for output in dctresults.keys():
             res = []
             lstresults = dctresults[output][0]
@@ -300,14 +299,13 @@ def mainHandler(json_string):
                     folder = 'unknown'  # optional fallback
             
                 #glue all together in dictionary with json notation
-            #glue all together in dictionary with json notation
-            res_dict[folder][subfolder].append({
-                    "name": f"{folder} {wmsname} laag {l}",
-                    "layer": wmslayers[ilay],
-                    "url": baseUrl,
-                })
+                #glue all together in dictionary with json notation
+                res_dict[folder][subfolder].append({
+                        "name": f"{folder} {wmsname} laag {l}",
+                        "layer": wmslayers[ilay],
+                        "url": baseUrl,
+                    })
 
-        print(res_dict)
         # Convert to nested folder structure
         res = []
         for folder, subfolders in res_dict.items():

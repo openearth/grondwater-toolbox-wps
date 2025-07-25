@@ -483,14 +483,13 @@ def mainHandler(json_string):
                 else:
                     folder = 'unknown'  # optional fallback
             
-            #glue all together in dictionary with json notation
-            res_dict[folder][subfolder].append({
-                    "name": f"{folder} {wmsname} laag {l}",
-                    "layer": wmslayers[ilay],
-                    "url": baseUrl,
-                })
-
-        print(res_dict)
+                #glue all together in dictionary with json notation
+                res_dict[folder][subfolder].append({
+                        "name": f"{folder} {wmsname} laag {l}",
+                        "layer": wmslayers[ilay],
+                        "url": baseUrl,
+                    })
+                
         # Convert to nested folder structure
         res = []
         for folder, subfolders in res_dict.items():
