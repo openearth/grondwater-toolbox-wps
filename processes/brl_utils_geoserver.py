@@ -205,7 +205,7 @@ def load2geoserver(cf, lstgtif, sld_style="brl", aws="abs"):
     dctstyles['scen_bdgflf'] = ("verticale flux scenario",'kwel')
     dctstyles['dif_head']    = ("verschil grondwaterstand",'brl')
     dctstyles['dif_bdgflf']  = ("verschil verticale flux",'kwel_mmd_2')
-    dctstyles['dif_cntrl']   = ("contourlijnen verschilsituatie",'cntrl')
+    dctstyles['dif_cntrl']   = ("contourlijnen verschilsituatie",'cntrln')
 
 
     # Initialize the geoserver
