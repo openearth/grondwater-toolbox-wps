@@ -424,7 +424,15 @@ def mainHandler(json_string):
     
     # reproject polygon to 28992 and determine the extent
     polyList = transformpolygon(json_string, "EPSG:4326", "EPSG:28992")
-    buf = float(cf.get("Model", "buffer"))
+
+    # retrieve buffer from front end
+    buf = None
+    try:
+        buf = float(areajson['extent'])
+    except Exception as e:
+        print('no buffer given, defaulting to config file')
+        buf = float(cf.get("Model", "buffer"))
+    print(f"buffer is {buf}")
     outres = 250.
     extent = definetotalextent_from_polylist(polyList, buf, outres)    
 

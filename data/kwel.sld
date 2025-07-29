@@ -31,7 +31,7 @@
             <sld:SourceChannelName>1</sld:SourceChannelName>
           </sld:GrayChannel>
         </sld:ChannelSelection>
-        <sld:ColorMap type="intervals">
+        <sld:ColorMap type="ramp">
           <sld:ColorMapEntry color="#990000" opacity="0.01" quantity="-20.000000" label="Inzijging (mm/dag)"/>
           <sld:ColorMapEntry color="#D60000" opacity="1.0" quantity="-2.000000" label="-2.00"/>
           <sld:ColorMapEntry color="#FF2626" opacity="1.0" quantity="-1.000000" label="-1.00"/>
