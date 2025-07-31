@@ -421,29 +421,35 @@ def mainHandler(json_string):
 
     # read the json string
     areajson = geojson.loads(json_string)
-    
+
     # reproject polygon to 28992 and determine the extent
     polyList = transformpolygon(json_string, "EPSG:4326", "EPSG:28992")
 
+    # Create the dictionaries with measures
+    outres = 250.
+    measDict = {}; measDictMap = {}
+    npoly = len(areajson["features"])
+    try:    
+        for ipoly in range(npoly):
+            dct = areajson['features'][ipoly]['properties']
+            dct['polygon'] = polyList[ipoly]
+            dct['outres'] = outres
+            measDict[ipoly] = dct
+            buf = areajson['features'][ipoly]['extent']
+    except Exception as e:
+        msg = f'following error occured {e}'
+        print(msg)
+        return json.dumps(msg)
+
     # retrieve buffer from front end
-    buf = None
     try:
-        buf = float(areajson['extent'])
+        buf = float(buf)
     except Exception as e:
         print('no buffer given, defaulting to config file')
         buf = float(cf.get("Model", "buffer"))
     print(f"buffer is {buf}")
-    outres = 250.
-    extent = definetotalextent_from_polylist(polyList, buf, outres)    
 
-    # Create the dictionaries with measures
-    measDict = {}; measDictMap = {}
-    npoly = len(areajson["features"])
-    for ipoly in range(npoly):
-        dct = areajson['features'][ipoly]['properties']
-        dct['polygon'] = polyList[ipoly]
-        dct['outres'] = outres
-        measDict[ipoly] = dct
+    extent = definetotalextent_from_polylist(polyList, buf, outres)    
 
     try:
         #pass
