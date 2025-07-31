@@ -435,7 +435,7 @@ def mainHandler(json_string):
             dct['polygon'] = polyList[ipoly]
             dct['outres'] = outres
             measDict[ipoly] = dct
-            buf = areajson['features'][ipoly]['extent']
+            buf = dct['extent']
     except Exception as e:
         msg = f'following error occured {e}'
         print(msg)
