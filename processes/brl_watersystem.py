@@ -168,6 +168,9 @@ def runModel(exe, runfile):
 
 def adjustrivpackage_generic(cf, extent, measDict, modeltmpdir, modeldir, tmpdir, outres):
     ppref = '***** ' + adjustrivpackage_generic.__name__
+    # flag to switch to resistance-based input with backwards compatibility.
+    # In the future, this flag could be removed since all input would
+    # be resistance based (apply_resis = True).
     apply_resis = True
 
     # flag for consistency check/modification
