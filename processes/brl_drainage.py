@@ -291,14 +291,24 @@ def mainHandler(json_string):
             res = []
             lstresults = dctresults[output][0]
             
+            # Calculate the waterneed
+            ndrn = int(cf.get("Model", "ndrn"))
+            resstat = 0.
+            for ipoly in range(npoly):
+                fn = f"{scenruntmpdir}\\bdgdrn\\bdgdrn_sys{ndrn+ipoly+1}_steady-state_l{measDict[ipoly]['layer']}.idf"
+                print(f"Reading {fn}...")
+                idf_obj = imod.idf.open(fn).squeeze("time")
+                resstat += np.nan_to_num(idf_obj.isel(x=slice(1, -1), y=slice(1, -1)).to_numpy()).sum()
+            print('resstat', resstat)
+
             # in case of differences in heads calculate total waterneed
-            if output == 'head':
-                wstatlayers = []
-                for rlayer in lstresults:
-                    if 'dif_head' in rlayer:
-                        wstatlayers.append(rlayer)
-                resstat = rasterstats_qubic(wstatlayers)
-                print('resstat', resstat)
+            #if output == 'head':
+            #    wstatlayers = []
+            #    for rlayer in lstresults:
+            #        if 'dif_head' in rlayer:
+            #            wstatlayers.append(rlayer)
+            #    resstat = rasterstats_qubic(wstatlayers)
+            #    print('resstat', resstat)
 
             wmslayers = load2geoserver(
                 cf, lstresults
