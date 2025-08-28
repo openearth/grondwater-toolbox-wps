@@ -335,13 +335,13 @@ def adjustrivpackage_generic(cf, extent, measDict, modeltmpdir, modeldir, tmpdir
             else:
                 rivDict[rs][rv] = os.path.join(modeldir,rivDict[rs]['subdir'],rivDict[rs][rv])
 
-    # set the dictonary used for writing the scenarion runfile
+    # set the dictonary used for writing the scenario runfile
     rfDict = {}
     for rv in rvar:
         rfDict[rv] = []
         for rs in rsList:
             ilay = rivDict[rs]['layer']
-            f = rivDict[rs][rv]
+            f = rivDict[rs][rv].replace(os.sep,"\\")
             s = f'{ilay},1,0,{f}'
             rfDict[rv].append(s)
 
