@@ -181,11 +181,13 @@ def adjustrivpackage_generic(cf, extent, measDict, modeltmpdir, modeldir, tmpdir
     rsList = ['p','s','t','h1','h2']
     # note: rvar and scvar should be matching!
     rvar   = ['cond',     'stage',     'rbot',     'inf']
+
     if apply_resis:
         fvar   = [outres*outres, None, None, None]
         scvar  = ['resisDiff', 'stageDiff', 'rbotDiff', 'infDiff']
     else:
-        fvar   = [None, None, None, None]
+        fvar   = [outres*outres, None, None, None]
+        #fvar   = [None, None, None, None]
         scvar  = ['condDiff', 'stageDiff', 'rbotDiff', 'infDiff']
 
     # number of polygons/areas
