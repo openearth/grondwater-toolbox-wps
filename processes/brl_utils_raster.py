@@ -31,6 +31,8 @@ import os
 from pathlib import Path
 import rasterio
 import numpy as np
+import xml.etree.ElementTree as ET
+
 
 def rasterstats_qubic(lstrasters):
     """Picks up every tif with type in the name and calculates a total sum and converts this to m3 water.
@@ -66,6 +68,58 @@ def rasterstats_qubic(lstrasters):
 
     return res
 
+def raster_bounds_sld(lstrasters):
+    """_summary_
+
+    Args:
+        lstrasters (list): List with full file paths to rasterfiles
+
+    Returns:
+        min_val (double): double precision number for minimum value of all rasters in the list
+        max_val (double): double precision number for maximum value of all rasters in the list
+    """
+    # Load GeoTIFFs and compute min and max
+    for frst in lstrasters:
+        with rasterio.open(frst) as src:
+            data = src.read()  # Read the first band
+            # set nodata to 0
+            data[np.isnan(data)] = 0
+
+            # derive min and max values for each raster
+            min_val = np.min(data)
+            max_val = np.max(data)
+            return min_val, max_val
+
+
+def set_dynamic_sld(sld, scnpath, min_val, max_val):
+    # ***** THIS IS A NOT WORKING PART! ***** 
+    # Define stepsize
+    step = ((max_val-min_val)/13)
+
+    # Generate the quantities and labels
+    quantities = np.arange(min_val, max_val + step, step)
+    
+    # Parse the XML
+    with open(sld, 'r') as file:
+        data = file.read()
+
+    # Replace the quantities and labels
+    for i in range(0,14):
+        data = data.format('q'+str(i) == quantities[i])
+    
+    # Write the modified XML to a new file
+    tmp_sld = os.path.join(scnpath,os.path.basename(sld).replace('rel',scnpath.split('\\')[-1]))
+    #tree.write(tmp_sld)
+    return tmp_sld
+
+
+def test_rstbounds():
+    lstrasters = [r"C:\temp\brl\znkuoqsmwrqg\ref_head_1756997716080674_l1.tif", r"C:\temp\brl\znkuoqsmwrqg\ref_head_1756997716080674_l2.tif", r"C:\temp\brl\znkuoqsmwrqg\ref_head_1756997716080674_l3.tif", r"C:\temp\brl\znkuoqsmwrqg\ref_head_1756997716080674_l4.tif", r"C:\temp\brl\znkuoqsmwrqg\ref_head_1756997716080674_l5.tif", r"C:\temp\brl\znkuoqsmwrqg\ref_head_1756997716080674_l6.tif", r"C:\temp\brl\znkuoqsmwrqg\ref_head_1756997716080674_l7.tif", r"C:\temp\brl\hmsnlsrmc\scen_head_1756997716080674_l1.tif", r"C:\temp\brl\hmsnlsrmc\scen_head_1756997716080674_l2.tif", r"C:\temp\brl\hmsnlsrmc\scen_head_1756997716080674_l3.tif", r"C:\temp\brl\hmsnlsrmc\scen_head_1756997716080674_l4.tif", r"C:\temp\brl\hmsnlsrmc\scen_head_1756997716080674_l5.tif", r"C:\temp\brl\hmsnlsrmc\scen_head_1756997716080674_l6.tif", r"C:\temp\brl\hmsnlsrmc\scen_head_1756997716080674_l7.tif"]
+    min_val, max_val = raster_bounds_sld(lstrasters)
+    print(min_val, max_val)
+    scnpath = r'C:\temp\brl\hmsnlsrmc'
+    sld = r'C:\develop\grondwater-toolbox-wps\data\maaiveld_tov_nap_rel.sld'
+    tmpsld = set_dynamic_sld(sld, scnpath, min_val, max_val)
 
 def test():
     lstresults = ['c:\\temp\\brl\\xqwnggbnrr\\dif_head_1753104673110787_l1.tif', 'c:\\temp\\brl\\xqwnggbnrr\\dif_head_1753104673110787_l2.tif', 'c:\\temp\\brl\\xqwnggbnrr\\dif_head_1753104673110787_l3.tif', 'c:\\temp\\brl\\xqwnggbnrr\\dif_head_1753104673110787_l4.tif', 'c:\\temp\\brl\\xqwnggbnrr\\dif_head_1753104673110787_l5.tif', 'c:\\temp\\brl\\xqwnggbnrr\\dif_head_1753104673110787_l6.tif', 'c:\\temp\\brl\\xqwnggbnrr\\dif_head_1753104673110787_l7.tif']

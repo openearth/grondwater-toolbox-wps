@@ -345,9 +345,9 @@ def mainHandler(json_string):
 
         # Convert to nested folder structure
         res = []
-        for folder, subfolders in res_dict.items():
+        for folder in ['verschil'] + [f for f in res_dict.keys() if f != 'verschil']:
             contents = []
-            for subfolder, items in subfolders.items():
+            for subfolder, items in res_dict[folder].items():
                 contents.append({
                     "folder": subfolder,
                     "contents": items
@@ -355,7 +355,32 @@ def mainHandler(json_string):
             res.append({
                 "folder": folder,
                 "contents": contents
+            })
+        # append extra data (maaivelddata in this case, might be extend to multiple other layers)
+        res.append({
+            'folder': 'basisdata', 
+            'contents': [
+                {
+                    "name": 'Maaiveldhoogte LHM',
+                    "layer": 'maaiveld:AHN_F250_M', 
+                    "url": baseUrl,
+                }
+            ]
         })
+
+        # # Convert to nested folder structure
+        # res = []
+        # for folder, subfolders in res_dict.items():
+        #     contents = []
+        #     for subfolder, items in subfolders.items():
+        #         contents.append({
+        #             "folder": subfolder,
+        #             "contents": items
+        #         })
+        #     res.append({
+        #         "folder": folder,
+        #         "contents": contents
+        #     })
         # set the additional output waterstat 
         # --> watervraag (cumulatief verschil van verschil in waterstanden)
         # --> amount of water availabl/desired (cumulative sum of differences in waterstages)

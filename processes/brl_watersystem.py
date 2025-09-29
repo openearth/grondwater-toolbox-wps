@@ -434,6 +434,7 @@ def mainHandler(json_string):
     outres = 250.
     measDict = {}; measDictMap = {}
     npoly = len(areajson["features"])
+
     try:    
         for ipoly in range(npoly):
             dct = areajson['features'][ipoly]['properties']
@@ -509,11 +510,10 @@ def mainHandler(json_string):
                         "url": baseUrl,
                     })
                 
-        # Convert to nested folder structure
         res = []
-        for folder, subfolders in res_dict.items():
+        for folder in ['verschil'] + [f for f in res_dict.keys() if f != 'verschil']:
             contents = []
-            for subfolder, items in subfolders.items():
+            for subfolder, items in res_dict[folder].items():
                 contents.append({
                     "folder": subfolder,
                     "contents": items
@@ -521,7 +521,32 @@ def mainHandler(json_string):
             res.append({
                 "folder": folder,
                 "contents": contents
-            })          
+            })
+        # append extra data (maaivelddata in this case, might be extend to multiple other layers)
+        res.append({
+            'folder': 'basisdata', 
+            'contents': [
+                {
+                    "name": 'Maaiveldhoogte LHM',
+                    "layer": 'maaiveld:AHN_F250_M', 
+                    "url": baseUrl,
+                }
+            ]
+        })
+
+        # # Convert to nested folder structure
+        # res = []
+        # for folder, subfolders in res_dict.items():
+        #     contents = []
+        #     for subfolder, items in subfolders.items():
+        #         contents.append({
+        #             "folder": subfolder,
+        #             "contents": items
+        #         })
+        #     res.append({
+        #         "folder": folder,
+        #         "contents": contents
+        #     })          
     except Exception as e:
         print("Error during calculation of differences and uploading tif!:", e)
         res = None
