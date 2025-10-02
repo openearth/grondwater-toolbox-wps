@@ -294,12 +294,12 @@ def mainHandler(json_string):
             # Calculate the waterneed
             ndrn = int(cf.get("Model", "ndrn"))
             resstat = 0.
-            for ipoly in range(npoly):
-                fn = f"{scenruntmpdir}\\bdgdrn\\bdgdrn_sys{ndrn+ipoly+1}_steady-state_l{measDict[ipoly]['layer']}.idf"
-                print(f"Reading {fn}...")
-                idf_obj = imod.idf.open(fn).squeeze("time")
-                resstat += np.nan_to_num(idf_obj.isel(x=slice(1, -1), y=slice(1, -1)).to_numpy()).sum()
-            logging.info('resstat', resstat)
+            # for ipoly in range(npoly):
+            #     fn = f"{scenruntmpdir}\\bdgdrn\\bdgdrn_sys{ndrn+ipoly+1}_steady-state_l{measDict[ipoly]['layer']}.idf"
+            #     print(f"Reading {fn}...")
+            #     idf_obj = imod.idf.open(fn).squeeze("time")
+            #     resstat += np.nan_to_num(idf_obj.isel(x=slice(1, -1), y=slice(1, -1)).to_numpy()).sum()
+            # logging.info('resstat', resstat)
 
             # in case of differences in heads calculate total waterneed
             #if output == 'head':
