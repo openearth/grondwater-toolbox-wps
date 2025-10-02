@@ -299,7 +299,7 @@ def mainHandler(json_string):
                 print(f"Reading {fn}...")
                 idf_obj = imod.idf.open(fn).squeeze("time")
                 resstat += np.nan_to_num(idf_obj.isel(x=slice(1, -1), y=slice(1, -1)).to_numpy()).sum()
-            print('resstat', resstat)
+            logging.info('resstat', resstat)
 
             # in case of differences in heads calculate total waterneed
             #if output == 'head':
@@ -344,6 +344,7 @@ def mainHandler(json_string):
                     })
 
         # Convert to nested folder structure
+        logging.info('preparing nested structure')
         res = []
         for folder in ['verschil'] + [f for f in res_dict.keys() if f != 'verschil']:
             contents = []
