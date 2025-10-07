@@ -184,7 +184,9 @@ def adjustrivpackage_generic(cf, extent, measDict, modeltmpdir, modeldir, tmpdir
 
     if apply_resis:
         fvar   = [outres*outres, None, None, None]
-        scvar  = ['resisDiff', 'stageDiff', 'rbotDiff', 'infDiff']
+        #scvar  = ['resisDiff', 'stageDiff', 'rbotDiff', 'infDiff']
+        # in case front end passes resisDiff, then ... apply previous line otherwise
+        scvar  = ['condDiff', 'stageDiff', 'rbotDiff', 'infDiff']
     else:
         fvar   = [outres*outres, None, None, None]
         #fvar   = [None, None, None, None]
