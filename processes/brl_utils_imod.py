@@ -174,16 +174,9 @@ def setupgwmodelandrun(cf, watersId, extent, measures, rivsys, scen0):
     # tmpdir = gettmpdir()
     tmpdir = cf.get("wps", "tmp")
 
-    # backwards compatibility for 'hoofdsysteem'
-    if rivsys != None:
-        generic = True
-        rfPref = 'nhi_scenario_generic'
-    else:
-        generic = False
-        rfPref = 'nhi_scenario'
     # OVERRULE
-    #generic = True
-    #rfPref = 'nhi_scenario_generic'
+    generic = True
+    rfPref = 'nhi_scenario_watersystem'
    
     # get the directory from the config file where the template is stored
     modeldir = cf.get("Model", "modeldir")
