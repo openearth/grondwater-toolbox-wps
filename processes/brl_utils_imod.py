@@ -168,10 +168,19 @@ def runModel(exe, runfile):
 
 
 def setupgwmodelandrun(cf, watersId, extent, measures, rivsys, scen0):
-    # extent = 5000
-    # r"C:\Users\hendrik_gt\AppData\Local\Temp\waters_1573655087489443_extent_rd.geojson"
-    # in the tmpdir (is the os tempdir) temp files are stored. Based on the watersId a couple of files are stored
-    # tmpdir = gettmpdir()
+    """enables creation of runfile. Based on scen0 (scen0 True, then reference run else scenario run, this has 2 distinct runfiles)
+
+    Args:
+        cf (_type_): configuration file
+        watersId (_type_): obsolete value
+        extent (_type_): extent of the model
+        measures (_type_): dictionary of measures
+        rivsys (_type_): system of change (i.e. main, primary, secundary or tertiary)
+        scen0 (_type_): true (reference calculation, false scenario calculation)
+
+    Returns:
+        _type_: _description_
+    """
     tmpdir = cf.get("wps", "tmp")
 
     # OVERRULE

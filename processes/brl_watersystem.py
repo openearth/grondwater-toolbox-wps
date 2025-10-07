@@ -192,6 +192,7 @@ def adjustrivpackage_generic(cf, extent, measDict, modeltmpdir, modeldir, tmpdir
 
     # number of polygons/areas
     npoly = len(measDict)
+    print('***  ', measDict)
 
     mDict = copy.deepcopy(measDict)
     for ipoly in range(npoly):
@@ -224,6 +225,7 @@ def adjustrivpackage_generic(cf, extent, measDict, modeltmpdir, modeldir, tmpdir
                     v = float(mDict[ipoly][rvd])
                 except:
                     continue
+                print ('v ',v)
                 if (abs(v) > 0.):
                     rivdatDict[rs]['active'] = True
                     rivdatDict[rs][rv]['active'] = True
@@ -234,6 +236,7 @@ def adjustrivpackage_generic(cf, extent, measDict, modeltmpdir, modeldir, tmpdir
     # loop over the river systems       
     for rs in rsList:
         if not rivdatDict[rs]['active']:
+            print('apparantly everyting is skipped',rs)
             continue 
 
         print(f'{ppref}: processing river system "{rs}"')
